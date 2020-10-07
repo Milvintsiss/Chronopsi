@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vge/pages/home.dart';
-import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:vge/root_page.dart';
 import 'package:vge/theme.dart';
 

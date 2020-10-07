@@ -1,34 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vge/pages/home.dart';
+import 'package:vge/library/configuration.dart';
+import 'package:vge/pages/home_page.dart';
 
-class Connection extends StatefulWidget {
-  Connection({Key key}) : super(key: key);
+class LogInPage extends StatefulWidget {
+  LogInPage({Key key, this.configuration}) : super(key: key);
+
+  final Configuration configuration;
 
   @override
-  _ConnectionState createState() => _ConnectionState();
+  _LogInPageState createState() => _LogInPageState();
 }
 
-class _ConnectionState extends State<Connection> {
+class _LogInPageState extends State<LogInPage> {
   final _formKey = new GlobalKey<FormState>();
 
   String firstName;
   String lastName;
-  SharedPreferences sharedPreferences;
-
-  @override
-  void initState() {
-    super.initState();
-    initSharedPreferences();
-  }
-
-  void initSharedPreferences() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       backgroundColor: Theme.of(context).primaryColorDark,
       body: body(),
     );
@@ -100,12 +92,12 @@ class _ConnectionState extends State<Connection> {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
             String logIn = "$firstName.$lastName";
-            sharedPreferences.setString('logIn', logIn);
+            widget.configuration.sharedPreferences.setString('logIn', logIn);
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => Home(
-                          logIn: logIn,
+                    builder: (context) => HomePage(
+                          configuration: widget.configuration,
                         )));
           }
         });

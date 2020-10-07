@@ -1,51 +1,44 @@
 import 'package:calendar_strip/calendar_strip.dart';
-import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:vge/library/about.dart';
+import 'package:vge/library/configuration.dart';
+import 'package:vge/pages/settings_page.dart';
 import '../app_state_notifier.dart';
 import '../database.dart';
 import '../day.dart';
-import 'connection.dart';
+import 'connection_page.dart';
 
-class Home extends StatefulWidget {
-  const Home({Key key, this.logIn}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({Key key, this.configuration}) : super(key: key);
 
-  final String logIn;
+  final Configuration configuration;
 
   @override
-  _HomeState createState() => _HomeState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _HomeState extends State<Home> {
+class _HomePageState extends State<HomePage> {
   bool loading = true;
   String test = "test";
   Day day;
 
   DateTime selectedDay = DateTime.now();
 
-  SharedPreferences sharedPreferences;
-
   @override
   void initState() {
     super.initState();
     getDay();
-    initSharedPreferences();
   }
 
   Future getDay() async {
-    day = await Database()
-        .getDay(widget.logIn, convertDateTimeToMMJJAAAAString(selectedDay));
-    day.init();
+    day = await Database().getDay(widget.configuration.logIn,
+        convertDateTimeToMMJJAAAAString(selectedDay));
+    day.init(widget.configuration.concatenateSimilarLessons);
     setState(() {
       loading = false;
     });
-  }
-
-  void initSharedPreferences() async {
-    sharedPreferences = await SharedPreferences.getInstance();
   }
 
   @override
@@ -92,7 +85,7 @@ class _HomeState extends State<Home> {
                             width: 3),
                       ),
                       child: Text(
-                        widget.logIn,
+                        widget.configuration.logIn,
                         style: TextStyle(
                             color: Theme.of(context).primaryColorLight),
                       )),
@@ -101,8 +94,10 @@ class _HomeState extends State<Home> {
             ),
             //showListTile("Test", Icons.sort, "test"),
             //showListTile("Test2", Icons.sort, "test2"),
-            showListTile("Changer de logIn", Icons.power_settings_new,
-                "switchConnection"),
+            showListTile("Changer d'identifiants", Icons.power_settings_new,
+                "switchLogIn"),
+            showListTile("Options", Icons.settings, 'settings'),
+            showListTile("A propos", Icons.info_outline, 'about'),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -118,8 +113,12 @@ class _HomeState extends State<Home> {
                   onChanged: (boolVal) {
                     Provider.of<AppStateNotifier>(context)
                         .updateTheme(!boolVal);
-                    sharedPreferences.setBool('theme', !boolVal);
+                    widget.configuration.sharedPreferences
+                        .setBool('theme', !boolVal);
                   },
+                  activeColor: Theme.of(context).primaryColor,
+                  inactiveThumbColor: Theme.of(context).primaryColorLight,
+                  inactiveTrackColor: Theme.of(context).primaryColor,
                 )
               ],
             ),
@@ -152,19 +151,32 @@ class _HomeState extends State<Home> {
           ),
           onTap: () async {
             switch (function) {
-              case "switchConnection":
+              case "switchLogIn":
                 {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Connection()));
+                      MaterialPageRoute(builder: (context) => LogInPage()));
+                }
+                break;
+              case 'settings':
+                {
+                  await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SettingsPage(
+                                configuration: widget.configuration,
+                              )));
+                  getDay();
+                }
+                break;
+              case "about":
+                {
+                  Navigator.pop(context);
+                  aboutDialog(context);
                 }
                 break;
               case "test":
                 {
-                  Day day = await Database().getDay(widget.logIn, "09/29/2020");
-                  setState(() {
-                    test = day.data;
-                  });
-                  day.init();
+
                 }
                 break;
               case "test2":
@@ -189,7 +201,10 @@ class _HomeState extends State<Home> {
   Widget showEDTDay() {
     if (loading)
       return Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).primaryColorLight),
+        ),
       );
     else
       return ListView(
@@ -241,34 +256,34 @@ class _HomeState extends State<Home> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Container(
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(100)),
-                                color: Theme.of(context).primaryColorLight,
-                              ),
-                              padding: EdgeInsets.all(6),
-                              child: Text(
-                                day.lessons[i].subject,
-                                maxLines: 1,
-                                softWrap: true,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColorDark,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14),
-                              )),
-                          Expanded(
-                            child: Center(
-                              child: Text(
-                                day.lessons[i].room,
-                                softWrap: false,
-                                maxLines: 1,
-                                style: TextStyle(
-                                    color: Theme.of(context).primaryColorLight,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold),
-                              ),
+                          Flexible(
+                            flex: 1,
+                            child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(100)),
+                                  color: Theme.of(context).primaryColorLight,
+                                ),
+                                padding: EdgeInsets.all(6),
+                                child: Text(
+                                  day.lessons[i].subject,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColorDark,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14),
+                                )),
+                          ),
+                          Flexible(
+                            flex: 0,
+                            child: Text(
+                              day.lessons[i].room,
+                              maxLines: 1,
+                              style: TextStyle(
+                                  color: Theme.of(context).primaryColorLight,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
                             ),
                           )
                         ],
@@ -398,29 +413,38 @@ class _HomeState extends State<Home> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(100)),
-                                        color:
-                                            Theme.of(context).primaryColorLight,
-                                      ),
-                                      padding: EdgeInsets.all(6),
-                                      child: Text(
-                                        lesson.subject,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .primaryColorDark,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14),
-                                      )),
-                                  Text(
-                                    lesson.room,
-                                    style: TextStyle(
-                                        color:
-                                            Theme.of(context).primaryColorLight,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
+                                  Flexible(
+                                    flex: 1,
+                                    child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(100)),
+                                          color: Theme.of(context)
+                                              .primaryColorLight,
+                                        ),
+                                        padding: EdgeInsets.all(6),
+                                        child: Text(
+                                          lesson.subject,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryColorDark,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14),
+                                        )),
+                                  ),
+                                  Flexible(
+                                    flex: 0,
+                                    child: Text(
+                                      lesson.room,
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryColorLight,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   )
                                 ],
                               ),
@@ -455,9 +479,11 @@ class _HomeState extends State<Home> {
       selectedDate: selectedDay,
       selectedColor: Theme.of(context).primaryColor,
       onDateSelected: (date) async {
+        setState(() {
+          loading = true;
+        });
         selectedDay = date;
         await getDay();
-        setState(() {});
       },
       addSwipeGesture: true,
       iconColor: Colors.black87,

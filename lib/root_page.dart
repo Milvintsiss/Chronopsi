@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vge/pages/connection.dart';
+import 'package:vge/library/configuration.dart';
+import 'package:vge/pages/connection_page.dart';
 
 import 'app_state_notifier.dart';
-import 'pages/home.dart';
+import 'pages/home_page.dart';
 
 enum AppState{
   loading,
@@ -22,10 +23,7 @@ class RootPage extends StatefulWidget {
 class _RootPageState extends State<RootPage> {
   AppState appState = AppState.loading;
 
-  SharedPreferences sharedPreferences;
-
-  String logIn;
-
+  Configuration configuration = Configuration();
 
   @override
   void initState() {
@@ -34,18 +32,20 @@ class _RootPageState extends State<RootPage> {
   }
 
   void initAndGetSharedPreferences() async {
-    sharedPreferences = await SharedPreferences.getInstance();
+    configuration.sharedPreferences = await SharedPreferences.getInstance();
 
-    bool isDarkTheme = sharedPreferences.getBool('theme') ?? true;
+    configuration.concatenateSimilarLessons = configuration.sharedPreferences.getBool('concatenateSimilarLessons') ?? true;
+
+    bool isDarkTheme = configuration.sharedPreferences.getBool('theme') ?? true;
     Provider.of<AppStateNotifier>(context)
         .updateTheme(isDarkTheme);
-    sharedPreferences.setBool('theme', isDarkTheme);
-    if(sharedPreferences.getString('logIn') == null || sharedPreferences.getString('logIn') == ""){
+    configuration.sharedPreferences.setBool('theme', isDarkTheme);
+    if(configuration.sharedPreferences.getString('logIn') == null || configuration.sharedPreferences.getString('logIn') == ""){
       setState(() {
         appState = AppState.disconnected;
       });
     }else {
-      logIn = sharedPreferences.getString('logIn');
+      configuration.logIn = configuration.sharedPreferences.getString('logIn');
       setState(() {
         appState = AppState.connected;
       });
@@ -63,11 +63,11 @@ class _RootPageState extends State<RootPage> {
       }
       break;
       case AppState.connected: {
-        return Home(logIn: logIn,);
+        return HomePage(configuration: configuration);
       }
       break;
       case AppState.disconnected: {
-        return Connection();
+        return LogInPage();
       }
       break;
     }
