@@ -1,4 +1,4 @@
-# vge
+# Chronopsi
 
 A new Flutter application.
 
