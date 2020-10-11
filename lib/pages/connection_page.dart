@@ -91,8 +91,8 @@ class _LogInPageState extends State<LogInPage> {
         onPressed: () {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
-            String logIn = "$firstName.$lastName";
-            widget.configuration.sharedPreferences.setString('logIn', logIn);
+            widget.configuration.logIn = "$firstName.$lastName";
+            widget.configuration.sharedPreferences.setString('logIn', widget.configuration.logIn);
             Navigator.push(
                 context,
                 MaterialPageRoute(

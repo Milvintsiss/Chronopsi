@@ -20,7 +20,9 @@ class Day {
 
     if (concatenateSimilarLessons) {
       for (var i = 0; i < lessons.length - 1; i++) {
-        if (lessons[i].subject == lessons[i + 1].subject) {
+        if (lessons[i].subject == lessons[i + 1].subject &&
+            lessons[i].endTime == lessons[i + 1].startTime &&
+            lessons[i].room == lessons[i + 1].room) {
           lessons[i].endTime = lessons[i + 1].endTime;
           lessons.removeAt(i + 1);
         }
@@ -44,7 +46,7 @@ class Lesson {
   String subject;
   String professor;
 
-  void convertHourToCoordinates(){
+  void convertHourToCoordinates() {
     int hour = int.parse(startTime.substring(0, 2));
     int min = int.parse(startTime.substring(3, 5));
     double _min = min / 60;
@@ -56,7 +58,3 @@ class Lesson {
     end = hour + _min;
   }
 }
-
-
-
-

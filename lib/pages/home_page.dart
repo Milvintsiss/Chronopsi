@@ -154,7 +154,7 @@ class _HomePageState extends State<HomePage> {
               case "switchLogIn":
                 {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LogInPage()));
+                      MaterialPageRoute(builder: (context) => LogInPage(configuration: widget.configuration,)));
                 }
                 break;
               case 'settings':
@@ -171,7 +171,7 @@ class _HomePageState extends State<HomePage> {
               case "about":
                 {
                   Navigator.pop(context);
-                  aboutDialog(context);
+                  aboutDialog(context, widget.configuration);
                 }
                 break;
               case "test":
