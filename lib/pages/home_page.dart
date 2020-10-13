@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:calendar_strip/calendar_strip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +27,9 @@ class _HomePageState extends State<HomePage> {
   String test = "test";
   Day day;
 
-  DateTime selectedDay = DateTime.now();
+  DateTime selectedDay = DateTime.now().hour >= 19
+      ? DateTime.now().add(Duration(days: 1))
+      : DateTime.now();
 
   @override
   void initState() {
@@ -153,8 +158,12 @@ class _HomePageState extends State<HomePage> {
             switch (function) {
               case "switchLogIn":
                 {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LogInPage(configuration: widget.configuration,)));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => LogInPage(
+                                configuration: widget.configuration,
+                              )));
                 }
                 break;
               case 'settings':
@@ -176,7 +185,15 @@ class _HomePageState extends State<HomePage> {
                 break;
               case "test":
                 {
-
+                  print("setting alarm...");
+                  await AndroidAlarmManager.oneShot(
+                    const Duration(minutes: 5),
+                    // Ensure we have a unique alarm ID.
+                    Random().nextInt(pow(2, 31)),
+                    () {},
+                    exact: true,
+                    wakeup: true,
+                  );
                 }
                 break;
               case "test2":
@@ -324,27 +341,45 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget showHours() {
-    return ListView.builder(
-        physics: ScrollPhysics(),
-        itemCount: 5,
-        itemBuilder: (BuildContext context, int index) {
-          return Padding(
-            padding: const EdgeInsets.all(2),
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                  vertical: MediaQuery.of(context).size.height / 60,
-                  horizontal: MediaQuery.of(context).size.width / 25),
-              decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  borderRadius: BorderRadius.all(Radius.circular(30))),
-              height: MediaQuery.of(context).size.height / 7,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
+    return Stack(
+      children: [
+        ListView.builder(
+            physics: ScrollPhysics(),
+            itemCount: 5,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.all(2),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width / 25),
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.all(Radius.circular(30))),
+                  height: MediaQuery.of(context).size.height / 7,
+                  child: Divider(
+                    color: Theme.of(context).primaryColorLight,
+                    thickness: 2,
+                  ),
+                ),
+              );
+            }),
+        ListView.builder(
+            physics: ScrollPhysics(),
+            itemCount: 6,
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.all(2),
+                child: Stack(
+                  overflow: Overflow.visible,
+                  children: [
+                    Container(
+                      color: Colors.transparent,
+                      height: MediaQuery.of(context).size.height / 7,
+                    ),
+                    Positioned(
+                      left: 10,
+                      top: -15,
+                      child: Container(
                         height: 30,
                         width: 30,
                         decoration: BoxDecoration(
@@ -359,33 +394,34 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColorLight,
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(100))),
-                        child: Center(
-                          child: Text(
-                            (index * 2 + 10).toString(),
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor),
+                    ),
+                    index == 5 || widget.configuration.cleanDisplay
+                        ? Container()
+                        : Positioned(
+                            left: 10,
+                            top: MediaQuery.of(context).size.height / 20,
+                            child: Container(
+                              height: 30,
+                              width: 30,
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColorLight,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(100))),
+                              child: Center(
+                                child: Text(
+                                  (index * 2 + 9).toString(),
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                      child: Divider(
-                    color: Theme.of(context).primaryColorLight,
-                    thickness: 2,
-                  ))
-                ],
-              ),
-            ),
-          );
-        });
+                  ],
+                ),
+              );
+            })
+      ],
+    );
   }
 
   void showDialogLesson(Lesson lesson) {
@@ -488,6 +524,21 @@ class _HomePageState extends State<HomePage> {
       addSwipeGesture: true,
       iconColor: Colors.black87,
       containerDecoration: BoxDecoration(color: Colors.black12),
+      dayLabels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+      monthLabels: [
+        "Janvier",
+        "Février",
+        "Mars",
+        "Avril",
+        "Mai",
+        "Juin",
+        "Juillet",
+        "Août",
+        "Septembre",
+        "Octobre",
+        "Novembre",
+        "Décembre"
+      ],
     );
   }
 

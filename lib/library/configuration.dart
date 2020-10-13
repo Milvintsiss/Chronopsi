@@ -5,6 +5,7 @@ class Configuration{
   bool isDarkTheme;
   String logIn;
   bool concatenateSimilarLessons;
+  bool cleanDisplay;
 
   SharedPreferences sharedPreferences;
   PackageInfo packageInfo;

@@ -37,6 +37,7 @@ class _RootPageState extends State<RootPage> {
     configuration.packageInfo = await PackageInfo.fromPlatform();
 
     configuration.concatenateSimilarLessons = configuration.sharedPreferences.getBool('concatenateSimilarLessons') ?? true;
+    configuration.cleanDisplay = configuration.sharedPreferences.getBool('cleanDisplay') ?? true;
 
     bool isDarkTheme = configuration.sharedPreferences.getBool('theme') ?? true;
     Provider.of<AppStateNotifier>(context)

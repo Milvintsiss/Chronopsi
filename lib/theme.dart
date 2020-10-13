@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 final ThemeData darkTheme = ThemeData(
-  primaryColor: Color(0xff40916c),
-  primaryColorDark: Color(0xff1b4332),
-  primaryColorLight: Color(0xffb7e4c7),
+  primaryColor: Color(0xff212529),
+  primaryColorDark: Color(0xff495057),
+  primaryColorLight: Color(0xffced4da),
 );
 
 final ThemeData lightTheme = ThemeData(
