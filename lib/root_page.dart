@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vge/library/configuration.dart';
@@ -35,7 +35,9 @@ class _RootPageState extends State<RootPage> {
   void initAndGetSharedPreferences() async {
     configuration.sharedPreferences = await SharedPreferences.getInstance();
     configuration.packageInfo = await PackageInfo.fromPlatform();
-
+    if (!configuration.sharedPreferences.containsKey('countKey')) {
+      await configuration.sharedPreferences.setInt('countKey', 0);
+    }
     configuration.concatenateSimilarLessons = configuration.sharedPreferences.getBool('concatenateSimilarLessons') ?? true;
     configuration.cleanDisplay = configuration.sharedPreferences.getBool('cleanDisplay') ?? true;
 

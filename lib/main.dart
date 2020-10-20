@@ -1,3 +1,6 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vge/root_page.dart';
@@ -5,7 +8,15 @@ import 'package:vge/theme.dart';
 
 import 'app_state_notifier.dart';
 
-void main() {
+
+/// The name associated with the UI isolate's [SendPort].
+const String isolateName = 'isolate';
+
+/// A port used to communicate from a background isolate to the UI isolate.
+final ReceivePort port = ReceivePort();
+
+
+Future<void> main() async {
   runApp(
     ChangeNotifierProvider<AppStateNotifier>(
       builder: (context) => AppStateNotifier(),

@@ -1,6 +1,10 @@
+import 'dart:isolate';
 import 'dart:math';
+import 'dart:ui';
 
-import 'package:android_alarm_manager/android_alarm_manager.dart';
+import 'package:android_intent/android_intent.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vge/main.dart';
 import 'package:calendar_strip/calendar_strip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +43,7 @@ class _HomePageState extends State<HomePage> {
 
   Future getDay() async {
     day = await Database().getDay(widget.configuration.logIn,
-        convertDateTimeToMMJJAAAAString(selectedDay));
+        Database().convertDateTimeToMMJJAAAAString(selectedDay));
     day.init(widget.configuration.concatenateSimilarLessons);
     setState(() {
       loading = false;
@@ -97,8 +101,8 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            //showListTile("Test", Icons.sort, "test"),
-            //showListTile("Test2", Icons.sort, "test2"),
+            showListTile("Test", Icons.sort, "test"),
+            showListTile("Test2", Icons.sort, "test2"),
             showListTile("Changer d'identifiants", Icons.power_settings_new,
                 "switchLogIn"),
             showListTile("Options", Icons.settings, 'settings'),
@@ -185,19 +189,23 @@ class _HomePageState extends State<HomePage> {
                 break;
               case "test":
                 {
-                  print("setting alarm...");
-                  await AndroidAlarmManager.oneShot(
-                    const Duration(minutes: 5),
-                    // Ensure we have a unique alarm ID.
-                    Random().nextInt(pow(2, 31)),
-                    () {},
-                    exact: true,
-                    wakeup: true,
-                  );
+                  print(double.parse(".${(0.25).toString().split('.')[1]}") * 60);
                 }
                 break;
               case "test2":
-                {}
+                {
+                  final AndroidIntent intent = const AndroidIntent(
+                    action: 'android.intent.action.SET_ALARM',
+                    arguments: <String, dynamic>{
+                      'android.intent.extra.alarm.DAYS': <int>[2, 3, 4, 5, 6],
+                      'android.intent.extra.alarm.HOUR': 22,
+                      'android.intent.extra.alarm.MINUTES': 30,
+                      'android.intent.extra.alarm.SKIP_UI': true,
+                      'android.intent.extra.alarm.MESSAGE': 'Chronopsi',
+                    },
+                  );
+                  intent.launch();
+                }
                 break;
             }
           },
@@ -540,9 +548,5 @@ class _HomePageState extends State<HomePage> {
         "Décembre"
       ],
     );
-  }
-
-  String convertDateTimeToMMJJAAAAString(DateTime date) {
-    return "${date.month}/${date.day}/${date.year}";
   }
 }
