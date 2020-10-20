@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:android_intent/android_intent.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vge/main.dart';
 import 'package:calendar_strip/calendar_strip.dart';
@@ -101,8 +102,8 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            showListTile("Test", Icons.sort, "test"),
-            showListTile("Test2", Icons.sort, "test2"),
+            kDebugMode ? showListTile("Test", Icons.sort, "test") : Container(),
+            kDebugMode ? showListTile("Test2", Icons.sort, "test2") : Container(),
             showListTile("Changer d'identifiants", Icons.power_settings_new,
                 "switchLogIn"),
             showListTile("Options", Icons.settings, 'settings'),
