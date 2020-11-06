@@ -82,12 +82,13 @@ class _HomePageState extends State<HomePage>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                      child: ClipRRect(
-                    child: Image.asset('assets/epsiLogo.png'),
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  )),
                   Padding(padding: EdgeInsets.only(top: 3)),
+                  Text(
+                    "Identifiants:",
+                    style: TextStyle(
+                        color: Theme.of(context).primaryColorLight,
+                        fontSize: 16),
+                  ),
                   Container(
                       padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
@@ -99,19 +100,50 @@ class _HomePageState extends State<HomePage>
                       child: Text(
                         widget.configuration.logIn,
                         style: TextStyle(
-                            color: Theme.of(context).primaryColorLight),
+                            color: Theme.of(context).primaryColorLight,
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       )),
                 ],
               ),
             ),
-            kDebugMode ? showListTile("Test", Icons.sort, "test") : Container(),
             kDebugMode
-                ? showListTile("Test2", Icons.sort, "test2")
+                ? showListTile("Test", Icons.sort, onTap: () {})
                 : Container(),
+            kDebugMode
+                ? showListTile("Test2", Icons.sort, onTap: () {})
+                : Container(),
+            showListTile("Actualiser", Icons.refresh, onTap: () {
+              Navigator.pop(context);
+              setState(() {
+                isLoading = true;
+              });
+              getDay();
+            }),
             showListTile("Changer d'identifiants", Icons.power_settings_new,
-                "switchLogIn"),
-            showListTile("Options", Icons.settings, 'settings'),
-            showListTile("A propos", Icons.info_outline, 'about'),
+                onTap: () async {
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => LogInPage(
+                            configuration: widget.configuration,
+                          )));
+
+              Navigator.pop(context);
+            }),
+            showListTile("Options", Icons.settings, onTap: () async {
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SettingsPage(
+                            configuration: widget.configuration,
+                          )));
+              Navigator.pop(context);
+              getDay();
+            }),
+            showListTile("A propos", Icons.info_outline, onTap: () {
+              Navigator.pop(context);
+              aboutDialog(context, widget.configuration);
+            }),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -142,7 +174,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget showListTile(String title, IconData icon, String function) {
+  Widget showListTile(String title, IconData icon, {Function onTap}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -163,60 +195,7 @@ class _HomePageState extends State<HomePage>
             icon,
             color: Theme.of(context).primaryColorLight,
           ),
-          onTap: () async {
-            switch (function) {
-              case "switchLogIn":
-                {
-                  await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => LogInPage(
-                                configuration: widget.configuration,
-                              )));
-
-                  Navigator.pop(context);
-                }
-                break;
-              case 'settings':
-                {
-                  await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => SettingsPage(
-                                configuration: widget.configuration,
-                              )));
-                  Navigator.pop(context);
-                  getDay();
-                }
-                break;
-              case "about":
-                {
-                  Navigator.pop(context);
-                  aboutDialog(context, widget.configuration);
-                }
-                break;
-              case "test":
-                {
-                  print(DateUtils.getLastDayOfMonth(selectedDay).day);
-                }
-                break;
-              case "test2":
-                {
-                  final AndroidIntent intent = const AndroidIntent(
-                    action: 'android.intent.action.SET_ALARM',
-                    arguments: <String, dynamic>{
-                      'android.intent.extra.alarm.DAYS': <int>[2, 3, 4, 5, 6],
-                      'android.intent.extra.alarm.HOUR': 22,
-                      'android.intent.extra.alarm.MINUTES': 30,
-                      'android.intent.extra.alarm.SKIP_UI': true,
-                      'android.intent.extra.alarm.MESSAGE': 'Chronopsi',
-                    },
-                  );
-                  intent.launch();
-                }
-                break;
-            }
-          },
+          onTap: onTap,
         ),
       ),
     );
@@ -571,7 +550,9 @@ class _HomePageState extends State<HomePage>
                       child: Column(
                         children: [
                           showTeamsButton(),
-                          Platform.isAndroid ? showGenerateAlarmButton(lesson) : Container(),
+                          Platform.isAndroid
+                              ? showGenerateAlarmButton(lesson)
+                              : Container(),
                         ],
                       ),
                     )
@@ -581,18 +562,15 @@ class _HomePageState extends State<HomePage>
             ));
   }
 
-  Widget showTeamsButton(){
+  Widget showTeamsButton() {
     return RaisedButton(
       shape: RoundedRectangleBorder(
-          borderRadius:
-          BorderRadius.all(Radius.circular(100))),
+          borderRadius: BorderRadius.all(Radius.circular(100))),
       color: Colors.blue[800],
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(
-              height: 42,
-              child: Image.asset('assets/teamsLogo.png')),
+          SizedBox(height: 42, child: Image.asset('assets/teamsLogo.png')),
           Text(
             "Teams",
             style: TextStyle(
@@ -604,21 +582,22 @@ class _HomePageState extends State<HomePage>
       onPressed: () {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Disponible dans une prochaine MAJ", style: TextStyle(color: Colors.red),),
+          content: Text(
+            "Disponible dans une prochaine MAJ",
+            style: TextStyle(color: Colors.red),
+          ),
         ));
       },
     );
   }
 
-  Widget showGenerateAlarmButton(Lesson lesson){
+  Widget showGenerateAlarmButton(Lesson lesson) {
     return RaisedButton(
       shape: RoundedRectangleBorder(
-          borderRadius:
-          BorderRadius.all(Radius.circular(100))),
+          borderRadius: BorderRadius.all(Radius.circular(100))),
       color: Theme.of(context).primaryColorDark,
       child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: 8, vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -626,8 +605,7 @@ class _HomePageState extends State<HomePage>
               height: 30,
               child: Icon(
                 Icons.alarm,
-                color:
-                Theme.of(context).primaryColorLight,
+                color: Theme.of(context).primaryColorLight,
               ),
             ),
             Container(width: 10),
@@ -636,8 +614,7 @@ class _HomePageState extends State<HomePage>
                 "Génerer une alarme pour ce cours",
                 maxLines: 2,
                 style: TextStyle(
-                    color: Theme.of(context)
-                        .primaryColorLight,
+                    color: Theme.of(context).primaryColorLight,
                     fontSize: 13,
                     fontWeight: FontWeight.w400),
               ),
@@ -650,7 +627,7 @@ class _HomePageState extends State<HomePage>
         AlarmGeneration().showGenerateAlarmsDialog(
           context,
           widget.configuration,
-              () {},
+          () {},
           day: day,
           lesson: lesson,
           weekDay: selectedDay.weekday,
@@ -674,7 +651,8 @@ class _HomePageState extends State<HomePage>
       },
       addSwipeGesture: true,
       iconColor: Theme.of(context).primaryColorLight,
-      containerDecoration: BoxDecoration(color: Theme.of(context).primaryColor.withOpacity(0.3)),
+      containerDecoration:
+          BoxDecoration(color: Theme.of(context).primaryColor.withOpacity(0.3)),
       dayLabels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
       monthLabels: [
         "Janvier",
