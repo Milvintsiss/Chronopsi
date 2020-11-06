@@ -33,10 +33,6 @@ dependencies:
   http: ^0.12.2
   html: ^0.14.0+3
 
-  calendar_strip: ^1.0.6
-  number_selection: ^0.0.1
-  flutter_duration_picker: ^1.0.4
-
   dynamic_theme: ^1.0.1
 
   package_info_plus: ^0.5.0
@@ -44,6 +40,9 @@ dependencies:
   shared_preferences: ^0.5.12
   provider: ^2.0.1
   android_intent: ^0.3.7+6
+  date_utils: ^0.1.0+3
+
+  diacritic: ^0.1.1
 
   firebase: ^7.3.1
 
@@ -79,6 +78,7 @@ flutter:
     - assets/epsiLogo.png
     - assets/appLogo/logo.jpg
     - assets/appLogo/logo.png
+    - assets/teamsLogo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

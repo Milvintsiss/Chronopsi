@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -7,7 +9,7 @@ void aboutDialog(BuildContext context, Configuration configuration) {
   showAboutDialog(
     context: context,
     applicationName: "Chronopsi",
-    applicationVersion: configuration.packageInfo.version,
+    applicationVersion: Platform.isWindows ? null : configuration.packageInfo.version,
     applicationIcon: SizedBox(
       height: 50,
       width: 50,

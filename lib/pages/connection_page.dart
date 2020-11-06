@@ -1,3 +1,4 @@
+import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:vge/library/configuration.dart';
 import 'package:vge/pages/home_page.dart';
@@ -33,25 +34,26 @@ class _LogInPageState extends State<LogInPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          showInput('firstName', Icons.drive_file_rename_outline),
-          showInput('lastName', Icons.drive_file_rename_outline),
+          showInput('firstName', Icons.drive_file_rename_outline, "Prénom", TextInputAction.next),
+          showInput('lastName', Icons.drive_file_rename_outline, "Nom", TextInputAction.done),
           showSaveButton(),
         ],
       ),
     );
   }
 
-  Widget showInput(String inputType, IconData icon) {
+  Widget showInput(String inputType, IconData icon, String label, TextInputAction textInputAction) {
     return Padding(
       padding: EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 0.0),
       child: new TextFormField(
         style: TextStyle(color: Theme.of(context).primaryColorLight),
         maxLines: 1,
-        keyboardType: TextInputType.text,
+        keyboardType: TextInputType.name,
+        textInputAction: textInputAction,
         autofocus: false,
         decoration: new InputDecoration(
             fillColor: Theme.of(context).primaryColor,
-            hintText: inputType == 'firstName' ? "Prénom" : "Nom",
+            hintText: label,
             hintStyle: TextStyle(color: Theme.of(context).primaryColorDark),
             filled: true,
             contentPadding: new EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
@@ -91,7 +93,7 @@ class _LogInPageState extends State<LogInPage> {
         onPressed: () {
           if (_formKey.currentState.validate()) {
             _formKey.currentState.save();
-            widget.configuration.logIn = "$firstName.$lastName";
+            widget.configuration.logIn = removeDiacritics("$firstName.$lastName");
             widget.configuration.sharedPreferences.setString('logIn', widget.configuration.logIn);
             Navigator.push(
                 context,

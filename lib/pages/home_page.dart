@@ -1,17 +1,16 @@
-import 'dart:isolate';
-import 'dart:math';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:android_intent/android_intent.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vge/main.dart';
-import 'package:calendar_strip/calendar_strip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vge/library/about.dart';
+import 'package:vge/library/alarm_generation.dart';
 import 'package:vge/library/configuration.dart';
+import 'package:vge/library/custom_calendar_strip.dart';
+import 'package:vge/library/date_utils.dart';
 import 'package:vge/pages/settings_page.dart';
 import '../app_state_notifier.dart';
 import '../database.dart';
@@ -27,14 +26,17 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  bool loading = true;
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  bool isLoading = true;
   String test = "test";
   Day day;
 
+  int swipeValue = 1;
+
   DateTime selectedDay = DateTime.now().hour >= 19
       ? DateTime.now().add(Duration(days: 1))
-      : DateTime.now();
+      : DateTime.now().add(Duration(days: 0));
 
   @override
   void initState() {
@@ -47,7 +49,7 @@ class _HomePageState extends State<HomePage> {
         Database().convertDateTimeToMMJJAAAAString(selectedDay));
     day.init(widget.configuration.concatenateSimilarLessons);
     setState(() {
-      loading = false;
+      isLoading = false;
     });
   }
 
@@ -103,7 +105,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             kDebugMode ? showListTile("Test", Icons.sort, "test") : Container(),
-            kDebugMode ? showListTile("Test2", Icons.sort, "test2") : Container(),
+            kDebugMode
+                ? showListTile("Test2", Icons.sort, "test2")
+                : Container(),
             showListTile("Changer d'identifiants", Icons.power_settings_new,
                 "switchLogIn"),
             showListTile("Options", Icons.settings, 'settings'),
@@ -163,12 +167,14 @@ class _HomePageState extends State<HomePage> {
             switch (function) {
               case "switchLogIn":
                 {
-                  Navigator.push(
+                  await Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => LogInPage(
                                 configuration: widget.configuration,
                               )));
+
+                  Navigator.pop(context);
                 }
                 break;
               case 'settings':
@@ -179,6 +185,7 @@ class _HomePageState extends State<HomePage> {
                           builder: (context) => SettingsPage(
                                 configuration: widget.configuration,
                               )));
+                  Navigator.pop(context);
                   getDay();
                 }
                 break;
@@ -190,7 +197,7 @@ class _HomePageState extends State<HomePage> {
                 break;
               case "test":
                 {
-                  print(double.parse(".${(0.25).toString().split('.')[1]}") * 60);
+                  print(DateUtils.getLastDayOfMonth(selectedDay).day);
                 }
                 break;
               case "test2":
@@ -220,34 +227,70 @@ class _HomePageState extends State<HomePage> {
       children: [
         showEDTDay(),
         showDaySwitcher(),
+        showGoToNextLessonButton(),
       ],
     );
   }
 
   Widget showEDTDay() {
-    if (loading)
-      return Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).primaryColorLight),
-        ),
-      );
-    else
-      return ListView(
-        padding: const EdgeInsets.only(top: 100, left: 5, right: 5),
-        physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+    return GestureDetector(
+      onHorizontalDragEnd: onSwipeLeftOrRight,
+      child: Stack(
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Stack(
-              children: [
-                showHours(),
-                showLessons(),
-              ],
-            ),
+          ListView(
+            padding: const EdgeInsets.only(top: 100, left: 5, right: 5),
+            physics:
+                AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: Stack(
+                  children: [
+                    showHours(),
+                    isLoading
+                        ? Align(
+                            alignment: Alignment.topCenter,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).primaryColorLight),
+                            ),
+                          )
+                        : showLessons(),
+                  ],
+                ),
+              ),
+            ],
           ),
+          showOpacityLayerIfNoLesson(),
+          showNoLessonAvailableTextIfNoLesson(),
         ],
-      );
+      ),
+    );
+  }
+
+  // void onSwipeLeftOrRight(int index) {
+  //   setState(() {
+  //     selectedDay = selectedDay.add(Duration(days: index - swipeValue));
+  //     isLoading = true;
+  //   });
+  //   getDay();
+  //   swipeValue = index;
+  // }
+
+  void onSwipeLeftOrRight(DragEndDetails dragEndDetails) {
+    int nextOrPreviousDay = 0;
+    if (dragEndDetails.primaryVelocity > 750) {
+      nextOrPreviousDay = -1;
+    } else if (dragEndDetails.primaryVelocity < -750) {
+      nextOrPreviousDay = 1;
+    }
+    if (nextOrPreviousDay != 0) {
+      setState(() {
+        selectedDay = selectedDay.add(Duration(days: nextOrPreviousDay));
+        isLoading = true;
+      });
+      getDay();
+    }
   }
 
   Widget showLessons() {
@@ -264,85 +307,86 @@ class _HomePageState extends State<HomePage> {
                     2 *
                     (MediaQuery.of(context).size.height / 7 + 4)),
             child: InkWell(
-              child: Container(
-                padding: EdgeInsets.all(4),
-                height: (day.lessons[i].end - day.lessons[i].start) /
-                    2 *
-                    MediaQuery.of(context).size.height /
-                    7,
+              child: Hero(
+                tag: day.lessons[i].startTime,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(40)),
-                    color: Theme.of(context).primaryColorDark,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Flexible(
-                            flex: 1,
-                            child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(100)),
-                                  color: Theme.of(context).primaryColorLight,
-                                ),
-                                padding: EdgeInsets.all(6),
-                                child: Text(
-                                  day.lessons[i].subject,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      color: Theme.of(context).primaryColorDark,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14),
-                                )),
-                          ),
-                          Flexible(
-                            flex: 0,
-                            child: Text(
-                              day.lessons[i].room,
-                              maxLines: 1,
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColorLight,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
+                  padding: EdgeInsets.all(4),
+                  height: (day.lessons[i].end - day.lessons[i].start) /
+                      2 *
+                      MediaQuery.of(context).size.height /
+                      7,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(40)),
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Flexible(
+                              flex: 1,
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(100)),
+                                    color: Theme.of(context).primaryColorLight,
+                                  ),
+                                  padding: EdgeInsets.all(6),
+                                  child: Text(
+                                    day.lessons[i].subject,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color:
+                                            Theme.of(context).primaryColorDark,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14),
+                                  )),
                             ),
-                          )
-                        ],
-                      ),
-                      (day.lessons[i].end - day.lessons[i].start) / 2 >= 1
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(
-                                  day.lessons[i].professor,
-                                  style: TextStyle(
-                                      color:
-                                          Theme.of(context).primaryColorLight,
-                                      fontSize: 11),
-                                ),
-                                Text(
-                                  "${day.lessons[i].startTime} -> ${day.lessons[i].endTime}",
-                                  style: TextStyle(
-                                      color:
-                                          Theme.of(context).primaryColorLight),
-                                ),
-                              ],
+                            Flexible(
+                              flex: 0,
+                              child: Text(
+                                day.lessons[i].room,
+                                maxLines: 1,
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColorLight,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             )
-                          : Container(),
-                    ],
+                          ],
+                        ),
+                        (day.lessons[i].end - day.lessons[i].start) / 2 >= 1
+                            ? Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    day.lessons[i].professor,
+                                    style: TextStyle(
+                                        color:
+                                            Theme.of(context).primaryColorLight,
+                                        fontSize: 11),
+                                  ),
+                                  Text(
+                                    "${day.lessons[i].startTime} -> ${day.lessons[i].endTime}",
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .primaryColorLight),
+                                  ),
+                                ],
+                              )
+                            : Container(),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              onTap: (day.lessons[i].end - day.lessons[i].start) / 2 >= 1
-                  ? null
-                  : () {
-                      showDialogLesson(day.lessons[i]);
-                    },
+              onTap: () => showDialogLesson(day.lessons[i]),
             ),
           )
       ]),
@@ -379,7 +423,7 @@ class _HomePageState extends State<HomePage> {
               return Padding(
                 padding: const EdgeInsets.all(2),
                 child: Stack(
-                  overflow: Overflow.visible,
+                  clipBehavior: Clip.none,
                   children: [
                     Container(
                       color: Colors.transparent,
@@ -437,102 +481,200 @@ class _HomePageState extends State<HomePage> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
+              elevation: 0,
               backgroundColor: Colors.transparent,
-              content: SizedBox(
-                width: MediaQuery.of(context).size.width * 4 / 5,
-                child: Container(
-                    padding: EdgeInsets.all(4),
-                    height: (lesson.end - lesson.start) *
-                        MediaQuery.of(context).size.height /
-                        7,
-                    child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(40)),
-                          color: Theme.of(context).primaryColorDark,
-                        ),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Flexible(
-                                    flex: 1,
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(100)),
-                                          color: Theme.of(context)
-                                              .primaryColorLight,
-                                        ),
-                                        padding: EdgeInsets.all(6),
-                                        child: Text(
-                                          lesson.subject,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .primaryColorDark,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14),
-                                        )),
-                                  ),
-                                  Flexible(
-                                    flex: 0,
-                                    child: Text(
-                                      lesson.room,
-                                      maxLines: 1,
+              content: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(50)),
+                  border: Border.all(
+                      color: Theme.of(context).primaryColorDark, width: 4),
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Hero(
+                      tag: lesson.startTime,
+                      child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          height: MediaQuery.of(context).size.height / 7,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(40)),
+                            color: Theme.of(context).primaryColorDark,
+                          ),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Flexible(
+                                      flex: 1,
+                                      child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(100)),
+                                            color: Theme.of(context)
+                                                .primaryColorLight,
+                                          ),
+                                          padding: EdgeInsets.all(6),
+                                          child: Text(
+                                            lesson.subject,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColorDark,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14),
+                                          )),
+                                    ),
+                                    Flexible(
+                                      flex: 0,
+                                      child: Text(
+                                        lesson.room,
+                                        maxLines: 1,
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .primaryColorLight,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text(
+                                      lesson.professor,
                                       style: TextStyle(
                                           color: Theme.of(context)
                                               .primaryColorLight,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold),
+                                          fontSize: 11),
                                     ),
-                                  )
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text(
-                                    lesson.professor,
-                                    style: TextStyle(
-                                        color:
-                                            Theme.of(context).primaryColorLight,
-                                        fontSize: 11),
-                                  ),
-                                  Text(
-                                    "${lesson.startTime} -> ${lesson.endTime}",
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .primaryColorLight),
-                                  ),
-                                ],
-                              )
-                            ]))),
+                                    Text(
+                                      "${lesson.startTime} -> ${lesson.endTime}",
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryColorLight),
+                                    ),
+                                  ],
+                                )
+                              ])),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 25, vertical: 5),
+                      child: Column(
+                        children: [
+                          showTeamsButton(),
+                          Platform.isAndroid ? showGenerateAlarmButton(lesson) : Container(),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ));
   }
 
+  Widget showTeamsButton(){
+    return RaisedButton(
+      shape: RoundedRectangleBorder(
+          borderRadius:
+          BorderRadius.all(Radius.circular(100))),
+      color: Colors.blue[800],
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          SizedBox(
+              height: 42,
+              child: Image.asset('assets/teamsLogo.png')),
+          Text(
+            "Teams",
+            style: TextStyle(
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+      onPressed: () {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Disponible dans une prochaine MAJ", style: TextStyle(color: Colors.red),),
+        ));
+      },
+    );
+  }
+
+  Widget showGenerateAlarmButton(Lesson lesson){
+    return RaisedButton(
+      shape: RoundedRectangleBorder(
+          borderRadius:
+          BorderRadius.all(Radius.circular(100))),
+      color: Theme.of(context).primaryColorDark,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+            horizontal: 8, vertical: 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 30,
+              child: Icon(
+                Icons.alarm,
+                color:
+                Theme.of(context).primaryColorLight,
+              ),
+            ),
+            Container(width: 10),
+            Expanded(
+              child: Text(
+                "Génerer une alarme pour ce cours",
+                maxLines: 2,
+                style: TextStyle(
+                    color: Theme.of(context)
+                        .primaryColorLight,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400),
+              ),
+            ),
+          ],
+        ),
+      ),
+      onPressed: () {
+        Navigator.pop(context);
+        AlarmGeneration().showGenerateAlarmsDialog(
+          context,
+          widget.configuration,
+              () {},
+          day: day,
+          lesson: lesson,
+          weekDay: selectedDay.weekday,
+        );
+      },
+    );
+  }
+
   Widget showDaySwitcher() {
-    return CalendarStrip(
+    return CustomCalendarStrip(
       startDate: selectedDay.subtract(Duration(days: 300)),
       endDate: selectedDay.add(Duration(days: 300)),
       selectedDate: selectedDay,
       selectedColor: Theme.of(context).primaryColor,
       onDateSelected: (date) async {
         setState(() {
-          loading = true;
+          isLoading = true;
         });
         selectedDay = date;
         await getDay();
       },
       addSwipeGesture: true,
-      iconColor: Colors.black87,
-      containerDecoration: BoxDecoration(color: Colors.black12),
+      iconColor: Theme.of(context).primaryColorLight,
+      containerDecoration: BoxDecoration(color: Theme.of(context).primaryColor.withOpacity(0.3)),
       dayLabels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
       monthLabels: [
         "Janvier",
@@ -549,5 +691,65 @@ class _HomePageState extends State<HomePage> {
         "Décembre"
       ],
     );
+  }
+
+  Widget showGoToNextLessonButton() {
+    if (!isLoading && day.lessons.length == 0)
+      return Positioned(
+        bottom: 15,
+        left: 20,
+        right: 20,
+        child: FloatingActionButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(100)),
+          ),
+          child: Center(child: Text("Aller aux prochains cours")),
+          onPressed: goToNextLesson,
+        ),
+      );
+    else
+      return Container();
+  }
+
+  Widget showOpacityLayerIfNoLesson() {
+    if (!isLoading && day.lessons.length == 0)
+      return Opacity(
+        opacity: 0.7,
+        child: Container(
+          color: Theme.of(context).primaryColor,
+        ),
+      );
+    else
+      return Container();
+  }
+
+  Widget showNoLessonAvailableTextIfNoLesson() {
+    if (!isLoading && day.lessons.length == 0)
+      return Center(
+        child: Text(
+          "Pas de cours ce jour-ci.",
+          style: TextStyle(color: Theme.of(context).primaryColorLight),
+        ),
+      );
+    else
+      return Container();
+  }
+
+  void goToNextLesson() async {
+    setState(() {
+      isLoading = true;
+    });
+    while (day.lessons.length == 0) {
+      //repeat while there is no lessons for the selected day
+      setState(() {
+        selectedDay = selectedDay.add(Duration(days: 1));
+      });
+      day = await Database().getDay(widget.configuration.logIn,
+          Database().convertDateTimeToMMJJAAAAString(selectedDay));
+      day.init(widget.configuration.concatenateSimilarLessons);
+    }
+    setState(() {
+      isLoading = false;
+    });
   }
 }

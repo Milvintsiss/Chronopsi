@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +36,7 @@ class _RootPageState extends State<RootPage> {
 
   void initAndGetSharedPreferences() async {
     configuration.sharedPreferences = await SharedPreferences.getInstance();
-    configuration.packageInfo = await PackageInfo.fromPlatform();
+    configuration.packageInfo = Platform.isWindows ? null : await PackageInfo.fromPlatform();
     if (!configuration.sharedPreferences.containsKey('countKey')) {
       await configuration.sharedPreferences.setInt('countKey', 0);
     }
@@ -59,7 +61,6 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
-
     switch (appState){
       case AppState.loading: {
         return Center(
@@ -73,6 +74,10 @@ class _RootPageState extends State<RootPage> {
       break;
       case AppState.disconnected: {
         return LogInPage(configuration: configuration,);
+      }
+      break;
+      default: {
+        return Container();
       }
       break;
     }
