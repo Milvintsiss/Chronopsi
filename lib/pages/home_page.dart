@@ -627,7 +627,7 @@ class _HomePageState extends State<HomePage>
         AlarmGeneration().showGenerateAlarmsDialog(
           context,
           widget.configuration,
-          () {},
+          isLoadingUpdate: (bool loading){},
           day: day,
           lesson: lesson,
           weekDay: selectedDay.weekday,

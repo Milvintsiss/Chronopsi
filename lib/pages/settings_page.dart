@@ -132,11 +132,7 @@ class _SettingsPageState extends State<SettingsPage> {
         style: TextStyle(fontSize: 18),
       ),
       onPressed: () async {
-        AlarmGeneration().showGenerateAlarmsDialog(context, widget.configuration, (bool loading){
-          setState(() {
-            isLoading = loading;
-          });
-        });
+        AlarmGeneration().showGenerateAlarmsDialog(context, widget.configuration, isLoadingUpdate: (bool loading){});
       },
     );
   }

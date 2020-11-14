@@ -11,10 +11,12 @@ class AlarmGeneration {
   bool openClockAppAfterGeneration = true;
   int numberOfDaysToGenerate = 7;
   Duration duration = Duration(hours: 1, minutes: 0);
+  bool isLoading = false;
+  double loadingValue = 0;
 
   void showGenerateAlarmsDialog(
-      BuildContext context, Configuration configuration, Function onGeneration,
-      {int weekDay, Day day, Lesson lesson}) {
+      BuildContext context, Configuration configuration,
+      {Function isLoadingUpdate, int weekDay, Day day, Lesson lesson}) {
     bool isSingleAlarm = weekDay != null && day != null && lesson != null;
     Dialog dialog = Dialog(
       backgroundColor: Theme.of(context).primaryColor,
@@ -143,13 +145,27 @@ class AlarmGeneration {
                           fontSize: 20,
                           fontWeight: FontWeight.bold)),
                   onPressed: () {
-                    Navigator.pop(context);
-                    isSingleAlarm
-                        ? generateSingleAlarm(
-                            configuration, onGeneration, weekDay, day, lesson)
-                        : generateAlarms(configuration, onGeneration);
+                    if (isSingleAlarm) {
+                      Navigator.pop(context);
+                      generateSingleAlarm(
+                          configuration, isLoadingUpdate, weekDay, day, lesson);
+                    } else {
+                      generateAlarms(
+                          configuration, isLoadingUpdate, setState, context);
+                    }
                   },
-                )
+                ),
+                isLoading
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: LinearProgressIndicator(
+                          value: loadingValue,
+                          backgroundColor: Theme.of(context).primaryColorDark,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).primaryColorLight),
+                        ),
+                      )
+                    : Container(),
               ],
             ),
           );
@@ -159,19 +175,26 @@ class AlarmGeneration {
     showDialog(context: context, child: dialog);
   }
 
-  void generateAlarms(
-      Configuration configuration, Function onGeneration) async {
-    onGeneration(true);
+  void generateAlarms(Configuration configuration, Function isLoadingUpdate,
+      StateSetter setState, BuildContext context) async {
+    setState(() => isLoading = true);
+    //isLoadingUpdate(true);
 
     double preparationAndTransportTime = duration.inMinutes / 60;
 
+    List<Day> days = [];
+
     for (int i = 0; i < numberOfDaysToGenerate; i++) {
+      setState(() => loadingValue = i / numberOfDaysToGenerate);
       Day day = await Database().getDay(
           configuration.logIn,
           Database().convertDateTimeToMMJJAAAAString(
               DateTime.now().add(Duration(days: i + 1))));
       day.init(false);
+      days.add(day);
+    }
 
+    days.forEach((day) {
       if (day.lessons.length > 0) {
         double alarmTime = day.lessons[0].start - preparationAndTransportTime;
         int hour = alarmTime.round();
@@ -183,7 +206,7 @@ class AlarmGeneration {
           action: 'android.intent.action.SET_ALARM',
           arguments: <String, dynamic>{
             'android.intent.extra.alarm.DAYS': <int>[
-              DateTime.now().add(Duration(days: i + 2)).weekday
+              DateTime.now().add(Duration(days: days.indexOf(day) + 2)).weekday
             ],
             'android.intent.extra.alarm.HOUR': hour,
             'android.intent.extra.alarm.MINUTES': minutes,
@@ -194,13 +217,14 @@ class AlarmGeneration {
         );
         intent.launch();
       }
-    }
-    onGeneration(false);
+    });
+    //isLoadingUpdate(false);
+    Navigator.pop(context);
   }
 
-  void generateSingleAlarm(Configuration configuration, Function onGeneration,
+  void generateSingleAlarm(Configuration configuration, Function isLoadingUpdate,
       int weekDay, Day day, Lesson lesson) async {
-    onGeneration(true);
+    isLoadingUpdate(true);
 
     double preparationAndTransportTime = duration.inMinutes / 60;
 
@@ -212,7 +236,7 @@ class AlarmGeneration {
     final AndroidIntent intent = AndroidIntent(
       action: 'android.intent.action.SET_ALARM',
       arguments: <String, dynamic>{
-        'android.intent.extra.alarm.DAYS': <int>[weekDay],
+        'android.intent.extra.alarm.DAYS': <int>[weekDay + 1],
         'android.intent.extra.alarm.HOUR': hour,
         'android.intent.extra.alarm.MINUTES': minutes,
         'android.intent.extra.alarm.SKIP_UI': !openClockAppAfterGeneration,
@@ -222,7 +246,7 @@ class AlarmGeneration {
     );
     intent.launch();
 
-    onGeneration(false);
+    isLoadingUpdate(false);
   }
 
   Widget showOptionWidget(BuildContext context, String label, bool value,

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
-
 /// the concept of the widget inspired
 /// from [Nikolay Kuchkarov](https://dribbble.com/shots/3368130-Stepper-Touch).
 /// and thanks to Raouf Rahiche for starting this
-
 
 class CustomNumberSelection extends StatefulWidget {
   const CustomNumberSelection({
@@ -93,7 +91,6 @@ class _CustomNumberSelectionState extends State<CustomNumberSelection>
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return FittedBox(
@@ -112,22 +109,25 @@ class _CustomNumberSelectionState extends State<CustomNumberSelection>
                 left: widget.direction == Axis.horizontal ? 10.0 : null,
                 bottom: widget.direction == Axis.horizontal ? null : 10.0,
                 child: InkWell(
-                    child: Icon(
-                        Icons.arrow_back_ios, size: 40.0, color: widget.firstColor),
+                    child: Icon(Icons.arrow_back_ios,
+                        size: 40.0, color: widget.firstColor),
                     onTap: () {
                       setState(() {
                         _value - 1 >= widget.minValue ? _value-- : _value;
                       });
+                      widget.onChanged(_value);
                     }),
               ),
               Positioned(
                 right: widget.direction == Axis.horizontal ? 10.0 : null,
                 top: widget.direction == Axis.horizontal ? null : 10.0,
-                child: InkWell(child: Icon(
-                    Icons.arrow_forward_ios, size: 40.0, color: widget.firstColor),
+                child: InkWell(
+                    child: Icon(Icons.arrow_forward_ios,
+                        size: 40.0, color: widget.firstColor),
                     onTap: () {
                       setState(() {
                         _value + 1 <= widget.maxValue ? _value++ : _value;
+                        widget.onChanged(_value);
                       });
                     }),
               ),
@@ -166,7 +166,6 @@ class _CustomNumberSelectionState extends State<CustomNumberSelection>
       ),
     );
   }
-
 
   double offsetFromGlobalPos(Offset globalPosition) {
     RenderBox box = context.findRenderObject() as RenderBox;
@@ -214,7 +213,7 @@ class _CustomNumberSelectionState extends State<CustomNumberSelection>
 
     if (widget.withSpring) {
       final SpringDescription _kDefaultSpring =
-      new SpringDescription.withDampingRatio(
+          new SpringDescription.withDampingRatio(
         mass: 0.9,
         stiffness: 250.0,
         ratio: 0.6,
@@ -235,6 +234,4 @@ class _CustomNumberSelectionState extends State<CustomNumberSelection>
       widget.onChanged(_value);
     }
   }
-
 }
-
