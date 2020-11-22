@@ -77,8 +77,15 @@ class _RootPageState extends State<RootPage> {
     switch (appState) {
       case AppState.loading:
         {
-          return Center(
-            child: CircularProgressIndicator(),
+          return Scaffold(
+            backgroundColor: Color(0xFF2a3035),
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Image.asset('assets/appLogo/logo_avec_padding.png'),
+                CircularProgressIndicator(),
+              ],
+            ),
           );
         }
         break;
