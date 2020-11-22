@@ -172,7 +172,7 @@ class AlarmGeneration {
         },
       ),
     );
-    showDialog(context: context, child: dialog);
+    showDialog(context: context, builder: (context) => dialog);
   }
 
   void generateAlarms(Configuration configuration, Function isLoadingUpdate,
@@ -187,9 +187,8 @@ class AlarmGeneration {
     for (int i = 0; i < numberOfDaysToGenerate; i++) {
       setState(() => loadingValue = i / numberOfDaysToGenerate);
       Day day = await Database().getDay(
-          configuration.logIn,
-          Database().convertDateTimeToMMJJAAAAString(
-              DateTime.now().add(Duration(days: i + 1))));
+          configuration: configuration,
+          dateTime: DateTime.now().add(Duration(days: i + 1)));
       day.init(false);
       days.add(day);
     }
@@ -222,8 +221,8 @@ class AlarmGeneration {
     Navigator.pop(context);
   }
 
-  void generateSingleAlarm(Configuration configuration, Function isLoadingUpdate,
-      int weekDay, Day day, Lesson lesson) async {
+  void generateSingleAlarm(Configuration configuration,
+      Function isLoadingUpdate, int weekDay, Day day, Lesson lesson) async {
     isLoadingUpdate(true);
 
     double preparationAndTransportTime = duration.inMinutes / 60;

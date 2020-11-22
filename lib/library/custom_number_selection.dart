@@ -10,6 +10,7 @@ class CustomNumberSelection extends StatefulWidget {
     Key key,
     this.firstColor,
     this.textColor,
+    this.backgroundColor = Colors.white,
     this.initialValue,
     this.onChanged,
     this.direction = Axis.horizontal,
@@ -21,6 +22,8 @@ class CustomNumberSelection extends StatefulWidget {
   final Color firstColor;
 
   final Color textColor;
+
+  final Color backgroundColor;
 
   /// the orientation of the stepper its horizontal or vertical.
   final Axis direction;
@@ -101,7 +104,7 @@ class _CustomNumberSelectionState extends State<CustomNumberSelection>
           type: MaterialType.canvas,
           clipBehavior: Clip.antiAlias,
           borderRadius: BorderRadius.circular(60.0),
-          color: Colors.white.withOpacity(0.2),
+          color: widget.backgroundColor,
           child: Stack(
             alignment: Alignment.center,
             children: <Widget>[

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:android_intent/android_intent.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +9,11 @@ import 'package:vge/library/about.dart';
 import 'package:vge/library/alarm_generation.dart';
 import 'package:vge/library/configuration.dart';
 import 'package:vge/library/custom_calendar_strip.dart';
-import 'package:vge/library/date_utils.dart';
 import 'package:vge/pages/settings_page.dart';
 import '../app_state_notifier.dart';
 import '../database.dart';
 import '../day.dart';
+import '../local_database.dart';
 import 'connection_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -36,7 +35,7 @@ class _HomePageState extends State<HomePage>
 
   DateTime selectedDay = DateTime.now().hour >= 19
       ? DateTime.now().add(Duration(days: 1))
-      : DateTime.now().add(Duration(days: 0));
+      : DateTime.now();
 
   @override
   void initState() {
@@ -44,9 +43,11 @@ class _HomePageState extends State<HomePage>
     getDay();
   }
 
-  Future getDay() async {
-    day = await Database().getDay(widget.configuration.logIn,
-        Database().convertDateTimeToMMJJAAAAString(selectedDay));
+  Future getDay({bool fromAPI = false}) async {
+    day = await Database().getDay(
+        configuration: widget.configuration,
+        dateTime: selectedDay,
+        fromAPI: fromAPI);
     day.init(widget.configuration.concatenateSimilarLessons);
     setState(() {
       isLoading = false;
@@ -67,6 +68,21 @@ class _HomePageState extends State<HomePage>
     return AppBar(
       backgroundColor: Theme.of(context).primaryColor,
       title: Center(child: Text('Chronopsi')),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.refresh),
+          onPressed: () {
+            setState(() {
+              isLoading = true;
+            });
+            getDay(fromAPI: true);
+          },
+        ),
+        Platform.isAndroid ? IconButton(
+          icon: Icon(Icons.alarm),
+          onPressed: () => AlarmGeneration().showGenerateAlarmsDialog(context, widget.configuration),
+        ) : Container(),
+      ],
     );
   }
 
@@ -101,24 +117,28 @@ class _HomePageState extends State<HomePage>
                         widget.configuration.logIn,
                         style: TextStyle(
                             color: Theme.of(context).primaryColorLight,
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
                       )),
                 ],
               ),
             ),
             kDebugMode
-                ? showListTile("Test", Icons.sort, onTap: () {})
+                ? showListTile("Test", Icons.sort, onTap: () {
+                    widget.configuration.localDatabase.schedulerCache
+                        .rawDelete('DELETE FROM $schedulerCacheTableName');
+                  })
                 : Container(),
             kDebugMode
                 ? showListTile("Test2", Icons.sort, onTap: () {})
                 : Container(),
-            showListTile("Actualiser", Icons.refresh, onTap: () {
-              Navigator.pop(context);
-              setState(() {
-                isLoading = true;
-              });
-              getDay();
-            }),
+            // showListTile("Actualiser", Icons.refresh, onTap: () {
+            //   Navigator.pop(context);
+            //   setState(() {
+            //     isLoading = true;
+            //   });
+            //   getDay(fromAPI: true);
+            // }),
             showListTile("Changer d'identifiants", Icons.power_settings_new,
                 onTap: () async {
               await Navigator.push(
@@ -457,6 +477,7 @@ class _HomePageState extends State<HomePage>
   }
 
   void showDialogLesson(Lesson lesson) {
+    lesson.setState(selectedDay);
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -541,7 +562,21 @@ class _HomePageState extends State<HomePage>
                                               .primaryColorLight),
                                     ),
                                   ],
-                                )
+                                ),
+                                Text(
+                                  lesson.lessonState == LessonState.UPCOMING
+                                      ? selectedDay.day - DateTime.now().day > 0
+                                          ? "Dans ${selectedDay.day - DateTime.now().day} jours"
+                                          : "${-(lesson.startHour - DateTime.now().hour)}h"
+                                              " et ${-(lesson.startMin - DateTime.now().minute)}min"
+                                              "\nrestantes avant le début du cours"
+                                      : lesson.lessonState ==
+                                              LessonState.CURRENT
+                                          ? "En cours"
+                                          : "Ce cours est passé",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 12),
+                                ),
                               ])),
                     ),
                     Padding(
@@ -627,7 +662,7 @@ class _HomePageState extends State<HomePage>
         AlarmGeneration().showGenerateAlarmsDialog(
           context,
           widget.configuration,
-          isLoadingUpdate: (bool loading){},
+          isLoadingUpdate: (bool loading) {},
           day: day,
           lesson: lesson,
           weekDay: selectedDay.weekday,
@@ -672,7 +707,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget showGoToNextLessonButton() {
-    if (!isLoading && day.lessons.length == 0)
+    if (!isLoading && day.isEmpty)
       return Positioned(
         bottom: 15,
         left: 20,
@@ -690,7 +725,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget showOpacityLayerIfNoLesson() {
-    if (!isLoading && day.lessons.length == 0)
+    if (!isLoading && day.isEmpty)
       return Opacity(
         opacity: 0.7,
         child: Container(
@@ -702,7 +737,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget showNoLessonAvailableTextIfNoLesson() {
-    if (!isLoading && day.lessons.length == 0)
+    if (!isLoading && day.isEmpty)
       return Center(
         child: Text(
           "Pas de cours ce jour-ci.",
@@ -722,8 +757,8 @@ class _HomePageState extends State<HomePage>
       setState(() {
         selectedDay = selectedDay.add(Duration(days: 1));
       });
-      day = await Database().getDay(widget.configuration.logIn,
-          Database().convertDateTimeToMMJJAAAAString(selectedDay));
+      day = await Database()
+          .getDay(configuration: widget.configuration, dateTime: selectedDay);
       day.init(widget.configuration.concatenateSimilarLessons);
     }
     setState(() {

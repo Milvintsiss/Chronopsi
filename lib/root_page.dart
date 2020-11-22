@@ -8,13 +8,10 @@ import 'package:vge/library/configuration.dart';
 import 'package:vge/pages/connection_page.dart';
 
 import 'app_state_notifier.dart';
+import 'local_database.dart';
 import 'pages/home_page.dart';
 
-enum AppState{
-  loading,
-  connected,
-  disconnected
-}
+enum AppState { loading, connected, disconnected }
 
 class RootPage extends StatefulWidget {
   RootPage({Key key}) : super(key: key);
@@ -35,23 +32,39 @@ class _RootPageState extends State<RootPage> {
   }
 
   void initAndGetSharedPreferences() async {
+    //init SQLite Database
+    configuration.localDatabase = LocalDatabase();
+    await configuration.localDatabase.init();
+    //get packageInfo
+    configuration.packageInfo =
+        Platform.isWindows ? null : await PackageInfo.fromPlatform();
+
+    //init sharedPreferences
     configuration.sharedPreferences = await SharedPreferences.getInstance();
-    configuration.packageInfo = Platform.isWindows ? null : await PackageInfo.fromPlatform();
     if (!configuration.sharedPreferences.containsKey('countKey')) {
       await configuration.sharedPreferences.setInt('countKey', 0);
     }
-    configuration.concatenateSimilarLessons = configuration.sharedPreferences.getBool('concatenateSimilarLessons') ?? true;
-    configuration.cleanDisplay = configuration.sharedPreferences.getBool('cleanDisplay') ?? true;
+    configuration.concatenateSimilarLessons =
+        configuration.sharedPreferences.getBool('concatenateSimilarLessons') ??
+            CONCATENATE_SIMILAR_LESSONS_DEFAULT_VALUE;
+    configuration.cleanDisplay =
+        configuration.sharedPreferences.getBool('cleanDisplay') ??
+            CLEAN_DISPLAY_DEFAULT_VALUE;
+    configuration.cacheKeepingDuration =
+        configuration.sharedPreferences.getInt('cacheKeepingDuration') ??
+            CACHE_KEEPING_DURATION_DEFAULT_VALUE;
 
-    bool isDarkTheme = configuration.sharedPreferences.getBool('theme') ?? true;
-    Provider.of<AppStateNotifier>(context)
-        .updateTheme(isDarkTheme);
+    bool isDarkTheme = configuration.sharedPreferences.getBool('theme') ??
+        IS_DARK_THEME_DEFAULT_VALUE;
+    Provider.of<AppStateNotifier>(context).updateTheme(isDarkTheme);
     configuration.sharedPreferences.setBool('theme', isDarkTheme);
-    if(configuration.sharedPreferences.getString('logIn') == null || configuration.sharedPreferences.getString('logIn') == ""){
+
+    if (configuration.sharedPreferences.getString('logIn') == null ||
+        configuration.sharedPreferences.getString('logIn') == "") {
       setState(() {
         appState = AppState.disconnected;
       });
-    }else {
+    } else {
       configuration.logIn = configuration.sharedPreferences.getString('logIn');
       setState(() {
         appState = AppState.connected;
@@ -61,25 +74,31 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
-    switch (appState){
-      case AppState.loading: {
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-      break;
-      case AppState.connected: {
-        return HomePage(configuration: configuration);
-      }
-      break;
-      case AppState.disconnected: {
-        return LogInPage(configuration: configuration,);
-      }
-      break;
-      default: {
-        return Container();
-      }
-      break;
+    switch (appState) {
+      case AppState.loading:
+        {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        break;
+      case AppState.connected:
+        {
+          return HomePage(configuration: configuration);
+        }
+        break;
+      case AppState.disconnected:
+        {
+          return LogInPage(
+            configuration: configuration,
+          );
+        }
+        break;
+      default:
+        {
+          return Container();
+        }
+        break;
     }
   }
 }

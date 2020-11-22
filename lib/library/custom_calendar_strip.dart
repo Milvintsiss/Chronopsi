@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'date_utils.dart';
 
+
 class CustomCalendarStrip extends StatefulWidget {
   // This widget is the root of your application.
   final Function onDateSelected;
@@ -84,7 +85,7 @@ class CustomCalendarStripState extends State<CustomCalendarStrip>
   CustomCalendarStripState(DateTime selectedDate, DateTime startDate,
       DateTime endDate) {
     today = getDateOnly(DateTime.now());
-    lastDayOfMonth = DateUtils.getLastDayOfMonth(currentDate);
+    lastDayOfMonth = CustomDateUtils.getLastDayOfMonth(currentDate);
     runPresetsAndExceptions(selectedDate, startDate, endDate);
     this.selectedDate = currentDate;
   }
@@ -129,7 +130,7 @@ class CustomCalendarStripState extends State<CustomCalendarStrip>
   }
 
   int getLastDayOfMonth(rowStartingDay) {
-    return DateUtils
+    return CustomDateUtils
         .getLastDayOfMonth(currentDate.add(Duration(days: rowStartingDay)))
         .day;
   }
@@ -425,7 +426,7 @@ class CustomCalendarStripState extends State<CustomCalendarStrip>
       selectedDate = widget.selectedDate;
       if (selectedDate.weekday == 1 && (
           oldWidget.selectedDate.day < widget.selectedDate.day ||
-              (oldWidget.selectedDate.day == DateUtils
+              (oldWidget.selectedDate.day == CustomDateUtils
                   .getLastDayOfMonth(oldWidget.selectedDate)
                   .day && widget.selectedDate.day == 1)))
         onNextRow();
@@ -433,7 +434,7 @@ class CustomCalendarStripState extends State<CustomCalendarStrip>
           ((oldWidget.selectedDate.day > widget.selectedDate.day &&
               (widget.selectedDate.day != 1 || (widget.selectedDate.day == 1 &&
                   oldWidget.selectedDate.day == 2)
-              )) || (widget.selectedDate.day == DateUtils
+              )) || (widget.selectedDate.day == CustomDateUtils
               .getLastDayOfMonth(widget.selectedDate)
               .day && oldWidget.selectedDate.day == 1)))
         onPrevRow();
