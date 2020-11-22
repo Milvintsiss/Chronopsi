@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
         theme: lightTheme,
         darkTheme: darkTheme,
         themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+        debugShowCheckedModeBanner: false,
         home: RootPage(),
       );
     });

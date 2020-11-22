@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:vge/day.dart';
+import 'package:path/path.dart' as p;
 
 const schedulerCacheTableName = 'schedulerCache';
 
@@ -16,7 +17,7 @@ class LocalDatabase {
 
   Future init() async {
     String databasesPath = await getDatabasesPath();
-    String schedulerCacheDatabasePath = databasesPath + 'schedulerCache';
+    String schedulerCacheDatabasePath = p.join(databasesPath, 'schedulerCache');
     schedulerCache = await openDatabase(schedulerCacheDatabasePath, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(

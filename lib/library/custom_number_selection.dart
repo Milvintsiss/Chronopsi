@@ -109,11 +109,11 @@ class _CustomNumberSelectionState extends State<CustomNumberSelection>
             alignment: Alignment.center,
             children: <Widget>[
               Positioned(
-                left: widget.direction == Axis.horizontal ? 10.0 : null,
+                left: widget.direction == Axis.horizontal ? 15.0 : null,
                 bottom: widget.direction == Axis.horizontal ? null : 10.0,
                 child: InkWell(
                     child: Icon(Icons.arrow_back_ios,
-                        size: 40.0, color: widget.firstColor),
+                        size: 80.0, color: widget.firstColor),
                     onTap: () {
                       setState(() {
                         _value - 1 >= widget.minValue ? _value-- : _value;
@@ -122,11 +122,11 @@ class _CustomNumberSelectionState extends State<CustomNumberSelection>
                     }),
               ),
               Positioned(
-                right: widget.direction == Axis.horizontal ? 10.0 : null,
+                right: widget.direction == Axis.horizontal ? 0.0 : null,
                 top: widget.direction == Axis.horizontal ? null : 10.0,
                 child: InkWell(
                     child: Icon(Icons.arrow_forward_ios,
-                        size: 40.0, color: widget.firstColor),
+                        size: 80.0, color: widget.firstColor),
                     onTap: () {
                       setState(() {
                         _value + 1 <= widget.maxValue ? _value++ : _value;
