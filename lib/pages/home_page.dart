@@ -567,8 +567,8 @@ class _HomePageState extends State<HomePage>
                                   lesson.lessonState == LessonState.UPCOMING
                                       ? selectedDay.day - DateTime.now().day > 0
                                           ? "Dans ${selectedDay.day - DateTime.now().day} jours"
-                                          : "${-(lesson.startHour - DateTime.now().hour)}h"
-                                              " et ${-(lesson.startMin - DateTime.now().minute)}min"
+                                          : "${lesson.startHour - DateTime.now().hour - 1}h"
+                                              " et ${60 - DateTime.now().minute - lesson.startMin}min"
                                               "\nrestantes avant le début du cours"
                                       : lesson.lessonState ==
                                               LessonState.CURRENT
