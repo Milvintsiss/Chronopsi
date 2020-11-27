@@ -1,6 +1,7 @@
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vge/local_database.dart';
+import 'package:vge/local_moor_database.dart';
 
 const bool IS_DARK_THEME_DEFAULT_VALUE = true;
 const bool CONCATENATE_SIMILAR_LESSONS_DEFAULT_VALUE = true;
@@ -16,6 +17,7 @@ class Configuration{
 
   SharedPreferences sharedPreferences;
   LocalDatabase localDatabase;
+  LocalMoorDatabase localMoorDatabase;
   int countKey;
   PackageInfo packageInfo;
 }
