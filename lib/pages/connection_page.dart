@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/material.dart';
 import 'package:vge/library/configuration.dart';
@@ -34,15 +36,26 @@ class _LogInPageState extends State<LogInPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          showInput('firstName', Icons.drive_file_rename_outline, "Prénom", TextInputAction.next),
-          showInput('lastName', Icons.drive_file_rename_outline, "Nom", TextInputAction.done),
+          showInput('firstName', Icons.drive_file_rename_outline, "Prénom",
+              TextInputAction.next,
+              onSaved: (value) =>
+                  firstName = value.replaceAll(" ", "").toLowerCase()),
+          showInput('lastName', Icons.drive_file_rename_outline, "Nom",
+              TextInputAction.done,
+              onSaved: (value) =>
+                  lastName = value.replaceAll(" ", "").toLowerCase()),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 10),
+          ),
           showSaveButton(),
         ],
       ),
     );
   }
 
-  Widget showInput(String inputType, IconData icon, String label, TextInputAction textInputAction) {
+  Widget showInput(String inputType, IconData icon, String label,
+      TextInputAction textInputAction,
+      {@required Function onSaved}) {
     return Padding(
       padding: EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 0.0),
       child: new TextFormField(
@@ -67,16 +80,8 @@ class _LogInPageState extends State<LogInPage> {
         validator: (value) {
           return value.isEmpty ? "Vous n'avez pas renseigné ce champ!" : null;
         },
-        onSaved: (value) {
-          switch (inputType) {
-            case "firstName":
-              firstName = value.trim().toLowerCase();
-              break;
-            case "lastName":
-              lastName = value.replaceAll(" ", "").toLowerCase();
-              break;
-          }
-        },
+        onSaved: onSaved,
+        onFieldSubmitted: textInputAction == TextInputAction.done ? (value) => save() : null,
       ),
     );
   }
@@ -86,22 +91,30 @@ class _LogInPageState extends State<LogInPage> {
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(100))),
         color: Theme.of(context).primaryColor,
+        padding: Platform.isWindows
+            ? EdgeInsets.symmetric(vertical: 17, horizontal: 30)
+            : EdgeInsets.symmetric(vertical: 12, horizontal: 25),
         child: Text(
           "Sauvegarder",
           style: TextStyle(color: Theme.of(context).primaryColorLight),
         ),
-        onPressed: () {
-          if (_formKey.currentState.validate()) {
-            _formKey.currentState.save();
-            widget.configuration.logIn = removeDiacritics("$firstName.$lastName");
-            widget.configuration.sharedPreferences.setString('logIn', widget.configuration.logIn);
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomePage(
-                          configuration: widget.configuration,
-                        )));
-          }
-        });
+        onPressed: save,
+    );
+  }
+
+  void save(){
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+      widget.configuration.logIn =
+          removeDiacritics("$firstName.$lastName");
+      widget.configuration.sharedPreferences
+          .setString('logIn', widget.configuration.logIn);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePage(
+                configuration: widget.configuration,
+              )));
+    }
   }
 }

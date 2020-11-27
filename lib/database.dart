@@ -8,6 +8,11 @@ import 'day.dart';
 const String url =
     "http://edtmobilite.wigorservices.net/WebPsDyn.aspx?Action=posETUD&serverid=h&tel=";
 
+//****************************************************************************//
+//TO USE SQFLITE INSTEAD OF MOOR REPLACE ALL "localMoorDatabase" with "localDatabase"
+//AND UNCOMMENT SQFLITE INIT IN "root_page"
+//****************************************************************************//
+
 class Database {
   Future<Day> getDay(
       {@required Configuration configuration,
@@ -15,17 +20,17 @@ class Database {
       String time = "8:00"}) async {
     Day day;
     if(fromAPI){
-      await configuration.localDatabase.deleteDay(Day(rawLessons: null, date: dateTime));
+      await configuration.localMoorDatabase.deleteDay(Day(rawLessons: null, date: dateTime), configuration.logIn);
       day = await getDayFromAPI(configuration, dateTime, time: time);
     }else {
-      day = await configuration.localDatabase.getDay(dateTime) ??
+      day = await configuration.localMoorDatabase.getDay(dateTime, configuration.logIn) ??
           await getDayFromAPI(configuration, dateTime, time: time);
     }
     //if the cache is too old, get new data from API
     if (day.rawLessons.length > 0 &&
         day.rawLessons[0].savingDate != null &&
         day.rawLessons[0].savingDate.difference(DateTime.now()).inDays >= configuration.cacheKeepingDuration) {
-      await configuration.localDatabase.deleteDay(day);
+      await configuration.localMoorDatabase.deleteDay(day, configuration.logIn);
       day = await getDayFromAPI(configuration, dateTime, time: time);
     }
     print("lessons: ${day.rawLessons.length}");
@@ -56,10 +61,9 @@ class Database {
         element.querySelector(".Prof").innerHtml,
       ));
     });
-    await configuration.localDatabase.addDay(Day(
+    await configuration.localMoorDatabase.addDay(Day(
         date: convertDateTimeToDateTimeWithYearMonthDayOnly(dateTime),
-        rawLessons: lessons));
-    //await Future.delayed(Duration(milliseconds: 400)); //essential for list of lessons strange bug, this have to be placed before day.init() execution
+        rawLessons: lessons), configuration.logIn);
     return Day(
         date: convertDateTimeToDateTimeWithYearMonthDayOnly(dateTime),
         rawLessons: lessons);

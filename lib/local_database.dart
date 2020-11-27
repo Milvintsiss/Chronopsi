@@ -6,6 +6,7 @@ const schedulerCacheTableName = 'schedulerCache';
 
 const day = 'day';
 const savingDate = 'savingDate';
+const logIn = 'logIn';
 const startTime = 'startTime';
 const endTime = 'endTime';
 const room = 'room';
@@ -21,31 +22,57 @@ class LocalDatabase {
     schedulerCache = await openDatabase(schedulerCacheDatabasePath, version: 1,
         onCreate: (Database db, int version) async {
       await db.execute(
-          'CREATE TABLE $schedulerCacheTableName ($day INTEGER, $savingDate INTEGER, $startTime TEXT, $endTime TEXT, $room TEXT, $subject TEXT, $professor TEXT)');
+          'CREATE TABLE $schedulerCacheTableName ('
+              '$day INTEGER, '
+              '$savingDate INTEGER, '
+              '$logIn TEXT '
+              '$startTime TEXT, '
+              '$endTime TEXT, '
+              '$room TEXT, '
+              '$subject TEXT, '
+              '$professor TEXT'
+              ')');
     });
   }
 
-  Future addDay(Day _day) async {
+  Future addDay(Day _day, String _logIn) async {
     DateTime currentTime = DateTime.now();
     await schedulerCache.transaction((txn) async {
       _day.rawLessons.forEach((Lesson lesson) async {
         await txn.rawInsert('INSERT INTO $schedulerCacheTableName '
-            '($day, $savingDate, $startTime, $endTime, $room, $subject, $professor) '
-            'VALUES (${dateTimeToId(_day.date)}, ${currentTime.millisecondsSinceEpoch}, "${lesson.startTime}", "${lesson.endTime}", "${lesson.room}", "${lesson.subject}", "${lesson.professor}")');
+            '($day, $savingDate, $logIn, $startTime, $endTime, $room, $subject, $professor) '
+            'VALUES ('
+            '${dateTimeToId(_day.date)}, '
+            '${currentTime.millisecondsSinceEpoch}, '
+            '$_logIn, '
+            '"${lesson.startTime}", '
+            '"${lesson.endTime}", '
+            '"${lesson.room}", '
+            '"${lesson.subject}", '
+            '"${lesson.professor}"'
+            ')');
         print(
-            'VALUES (${dateTimeToId(_day.date)}, ${currentTime.millisecondsSinceEpoch}, "${lesson.startTime}", "${lesson.endTime}", "${lesson.room}", "${lesson.subject}", "${lesson.professor}")');
+            '$day: ${dateTimeToId(_day.date)}, '
+                '$savingDate: ${currentTime.millisecondsSinceEpoch}, '
+                '$logIn: $_logIn, '
+                '$startTime: "${lesson.startTime}", '
+                '$endTime: "${lesson.endTime}", '
+                '$room: "${lesson.room}", '
+                '$subject: "${lesson.subject}", '
+                '$professor: "${lesson.professor}"');
       });
-      if(_day.rawLessons.length == 0){
+      if (_day.rawLessons.length == 0) {
         await txn.rawInsert('INSERT INTO $schedulerCacheTableName '
-            '($day, $savingDate) '
-            'VALUES (${dateTimeToId(_day.date)}, ${currentTime.millisecondsSinceEpoch})');
+            '($day, $savingDate, $logIn) '
+            'VALUES (${dateTimeToId(_day.date)}, ${currentTime.millisecondsSinceEpoch}, $_logIn)');
       }
     });
   }
 
-  Future<Day> getDay(DateTime dateTime) async {
+  Future<Day> getDay(DateTime dateTime, String _logIn) async {
     List<Map> dataList = await schedulerCache.rawQuery(
-        'SELECT * FROM $schedulerCacheTableName WHERE $day = ${dateTimeToId(dateTime)}');
+        'SELECT * FROM $schedulerCacheTableName '
+            'WHERE $day = ${dateTimeToId(dateTime)} AND $logIn = $_logIn');
     print(dataList);
     if (dataList.length > 0) {
       List<Lesson> lessons = [];
@@ -64,9 +91,10 @@ class LocalDatabase {
       return null;
   }
 
-  Future deleteDay(Day _day) async {
+  Future deleteDay(Day _day, String _logIn) async {
     await schedulerCache.rawDelete(
-        'DELETE FROM $schedulerCacheTableName WHERE $day = ${dateTimeToId(_day.date)}');
+        'DELETE FROM $schedulerCacheTableName '
+            'WHERE $day = ${dateTimeToId(_day.date)} AND $logIn = $_logIn');
   }
 }
 

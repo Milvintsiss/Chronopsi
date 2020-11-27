@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vge/library/configuration.dart';
+import 'package:vge/local_moor_database.dart';
 import 'package:vge/pages/connection_page.dart';
 
 import 'app_state_notifier.dart';
@@ -32,9 +33,12 @@ class _RootPageState extends State<RootPage> {
   }
 
   void initAndGetSharedPreferences() async {
-    //init SQLite Database
-    configuration.localDatabase = LocalDatabase();
-    await configuration.localDatabase.init();
+    // //init SQLite Database
+    // configuration.localDatabase = LocalDatabase();
+    // await configuration.localDatabase.init();
+
+    //init Moor Database
+    configuration.localMoorDatabase = LocalMoorDatabase();
     //get packageInfo
     configuration.packageInfo =
         Platform.isWindows ? null : await PackageInfo.fromPlatform();

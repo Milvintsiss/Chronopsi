@@ -78,10 +78,13 @@ class _HomePageState extends State<HomePage>
             getDay(fromAPI: true);
           },
         ),
-        Platform.isAndroid ? IconButton(
-          icon: Icon(Icons.alarm),
-          onPressed: () => AlarmGeneration().showGenerateAlarmsDialog(context, widget.configuration),
-        ) : Container(),
+        Platform.isAndroid
+            ? IconButton(
+                icon: Icon(Icons.alarm),
+                onPressed: () => AlarmGeneration()
+                    .showGenerateAlarmsDialog(context, widget.configuration),
+              )
+            : Container(),
       ],
     );
   }
@@ -478,6 +481,7 @@ class _HomePageState extends State<HomePage>
 
   void showDialogLesson(Lesson lesson) {
     lesson.setState(selectedDay);
+    DateTime currentTime = DateTime.now();
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -565,11 +569,16 @@ class _HomePageState extends State<HomePage>
                                 ),
                                 Text(
                                   lesson.lessonState == LessonState.UPCOMING
-                                      ? selectedDay.day - DateTime.now().day > 0
-                                          ? "Dans ${selectedDay.day - DateTime.now().day} jours"
-                                          : "${lesson.startHour - DateTime.now().hour - 1}h"
-                                              " et ${60 - DateTime.now().minute - lesson.startMin}min"
-                                              "\nrestantes avant le début du cours"
+                                      ? selectedDay.day - currentTime.day > 0
+                                          ? "Dans ${selectedDay.day - currentTime.day} jours"
+                                          : lesson.startHour -
+                                                      currentTime.hour >
+                                                  1
+                                              ? "${lesson.startHour - currentTime.hour - 1}h"
+                                                  " et ${60 - currentTime.minute - lesson.startMin}min"
+                                                  "\nrestantes avant le début du cours"
+                                              : "${60 - currentTime.minute - lesson.startMin} minutes"
+                                                  "\nrestantes avant le début du cours"
                                       : lesson.lessonState ==
                                               LessonState.CURRENT
                                           ? "En cours"
