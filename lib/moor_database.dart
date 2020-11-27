@@ -40,7 +40,7 @@ class AppMoorDatabase extends _$AppMoorDatabase {
             print("Save folder: ${dbFolderDesktop.path}");
           }
           final file = File(p.join(
-              Platform.isAndroid ? dbFolderAndroidIOS : dbFolderDesktop.path,
+              Platform.isAndroid || Platform.isIOS ? dbFolderAndroidIOS : dbFolderDesktop.path,
               'lessons.sqlite'));
           return VmDatabase(file, logStatements: true);
         }));
