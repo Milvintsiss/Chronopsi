@@ -569,8 +569,8 @@ class _HomePageState extends State<HomePage>
                                 ),
                                 Text(
                                   lesson.lessonState == LessonState.UPCOMING
-                                      ? selectedDay.day - currentTime.day > 0
-                                          ? "Dans ${selectedDay.day - currentTime.day} jours"
+                                      ? selectedDay.difference(currentTime).inHours > 0
+                                          ? "Dans ${selectedDay.difference(currentTime).inDays + 1} jours"
                                           : lesson.startHour -
                                                       currentTime.hour >
                                                   1
