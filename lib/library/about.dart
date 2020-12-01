@@ -9,7 +9,7 @@ void aboutDialog(BuildContext context, Configuration configuration) {
   showAboutDialog(
     context: context,
     applicationName: "Chronopsi",
-    applicationVersion: Platform.isWindows ? null : configuration.packageInfo.version,
+    applicationVersion: Platform.isWindows || Platform.isLinux ? null : configuration.packageInfo.version,
     applicationIcon: SizedBox(
       height: 50,
       width: 50,
