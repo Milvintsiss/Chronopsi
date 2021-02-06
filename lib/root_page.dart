@@ -40,7 +40,7 @@ class _RootPageState extends State<RootPage> {
     configuration.localMoorDatabase = LocalMoorDatabase();
     //get packageInfo
     configuration.packageInfo =
-        Platform.isWindows ? null : await PackageInfo.fromPlatform();
+        Platform.isWindows || Platform.isLinux ? null : await PackageInfo.fromPlatform();
 
     //init sharedPreferences
     configuration.sharedPreferences = await SharedPreferences.getInstance();
