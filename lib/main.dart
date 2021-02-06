@@ -1,25 +1,17 @@
-import 'dart:isolate';
-
-import 'package:flutter/foundation.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:vge/root_page.dart';
-import 'package:vge/theme.dart';
-
-import 'app_state_notifier.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:chronopsi/root_page.dart';
+import 'package:chronopsi/theme.dart';
 
 import 'dart:ffi';
 import 'dart:io';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3/open.dart';
 
-/// The name associated with the UI isolate's [SendPort].
-const String isolateName = 'isolate';
-
-/// A port used to communicate from a background isolate to the UI isolate.
-final ReceivePort port = ReceivePort();
-
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   ////init moor
   print("Get SQLite from package");
   open.overrideFor(OperatingSystem.linux, _openOnLinux);
@@ -28,17 +20,20 @@ Future<void> main() async {
   final db = sqlite3.openInMemory();
   db.dispose();
 
-  runApp(
-    ChangeNotifierProvider<AppStateNotifier>(
-      builder: (context) => AppStateNotifier(),
-      child: MyApp(),
-    ),
-  );
+  //init locale language
+  await initializeDateFormatting();
+
+  //getSavedTheme
+  final AdaptiveThemeMode savedThemeMode = await AdaptiveTheme.getThemeMode();
+
+  runApp(MyApp(savedThemeMode));
 }
 
 DynamicLibrary _openOnLinux() {
   final script = File(Platform.script.toFilePath());
+  print('Script PATH: ${script.path}');
   final libraryNextToScript = File('${script.path}/sqlite3.so');
+  print('Library PATH: ${libraryNextToScript.path}');
   return DynamicLibrary.open(libraryNextToScript.path);
 }
 
@@ -51,18 +46,26 @@ DynamicLibrary _openOnWindows() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  final AdaptiveThemeMode adaptiveThemeMode;
+
+  MyApp(this.adaptiveThemeMode);
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppStateNotifier>(builder: (context, appState, child) {
-      return MaterialApp(
-        title: 'Chronopsi',
-        theme: lightTheme,
-        darkTheme: darkTheme,
-        themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-        debugShowCheckedModeBanner: false,
-        home: RootPage(),
-      );
-    });
+    final AdaptiveThemeMode _adaptiveThemeMode =
+        adaptiveThemeMode ?? AdaptiveThemeMode.dark;
+    return AdaptiveTheme(
+        light: AppTheme().lightTheme,
+        dark: AppTheme().darkTheme,
+        initial: _adaptiveThemeMode,
+        builder: (lightTheme, darkTheme) => MaterialApp(
+              title: 'Chronopsi',
+              theme: lightTheme,
+              darkTheme: darkTheme,
+              debugShowCheckedModeBanner: false,
+              home: RootPage(
+                adaptiveThemeMode: _adaptiveThemeMode,
+              ),
+            ));
   }
 }

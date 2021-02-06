@@ -1,6 +1,5 @@
-
-
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class Day {
   Day({@required this.date, @required this.rawLessons});
@@ -11,14 +10,15 @@ class Day {
   bool isEmpty;
 
   void init(bool concatenateSimilarLessons) {
-    if(rawLessons.length > 0 && rawLessons[0].startTime != null) {
+    if (rawLessons.length > 0 && rawLessons[0].startTime != null) {
       isEmpty = false;
       lessons = rawLessons;
       if (concatenateSimilarLessons) {
         for (var i = 0; i < lessons.length - 1; i++) {
           if (lessons[i].subject == lessons[i + 1].subject &&
               lessons[i].endTime == lessons[i + 1].startTime &&
-              lessons[i].room == lessons[i + 1].room) {
+              lessons[i].room == lessons[i + 1].room &&
+              lessons[i].wasAbsent == lessons[i + 1].wasAbsent) {
             lessons[i].endTime = lessons[i + 1].endTime;
             lessons.removeAt(i + 1);
           }
@@ -28,18 +28,19 @@ class Day {
         element.convertHourToCoordinates();
         element.convertHourToHourInt();
       });
-    } else{
+    } else {
       isEmpty = true;
     }
   }
 }
 
-DateTime convertDateTimeToDateTimeWithYearMonthDayOnly(DateTime dateTime){
+DateTime convertDateTimeToDateTimeWithYearMonthDayOnly(DateTime dateTime) {
   return DateTime(dateTime.year, dateTime.month, dateTime.day);
 }
 
 class Lesson {
-  Lesson(this.startTime, this.endTime, this.room, this.subject, this.professor, {this.savingDate});
+  Lesson(this.startTime, this.endTime, this.room, this.subject, this.professor,
+      {this.wasAbsent = false, this.savingDate});
 
   String startTime;
   String endTime;
@@ -52,8 +53,13 @@ class Lesson {
   String room;
   String subject;
   String professor;
-  LessonState lessonState;
+  bool wasAbsent;
   DateTime savingDate;
+
+  LessonState lessonState;
+  int daysRemeaning = 0;
+  int hoursRemeaning = 0;
+  int minRemeaning = 0;
 
   void convertHourToCoordinates() {
     int hour = int.parse(startTime.substring(0, 2));
@@ -67,7 +73,7 @@ class Lesson {
     end = hour + _min;
   }
 
-  void convertHourToHourInt(){
+  void convertHourToHourInt() {
     startHour = int.parse(startTime.substring(0, 2));
     startMin = int.parse(startTime.substring(3, 5));
     endHour = int.parse(endTime.substring(0, 2));
@@ -75,13 +81,19 @@ class Lesson {
   }
 
   void setState(DateTime selectedDay) {
-    if (DateTime.utc(selectedDay.year, selectedDay.month, selectedDay.day,
-            startHour, startMin)
-        .isAfter(DateTime.now()))
+    DateTime lessonStart = DateTime(selectedDay.year, selectedDay.month,
+        selectedDay.day, startHour, startMin);
+    DateTime lessonEnd = DateTime(
+        selectedDay.year, selectedDay.month, selectedDay.day, endHour, endMin);
+    if (lessonStart.isAfter(DateTime.now())) {
       lessonState = LessonState.UPCOMING;
-    else if (DateTime.utc(selectedDay.year, selectedDay.month, selectedDay.day,
-            endHour, endMin)
-        .isAfter(DateTime.now()))
+      DateTimeRange difference =
+          DateTimeRange(start: DateTime.now(), end: lessonStart);
+      daysRemeaning = difference.duration.inDays;
+      hoursRemeaning = difference.duration.inHours;
+      minRemeaning =
+          difference.duration.inMinutes - (difference.duration.inHours * 60);
+    } else if (lessonEnd.isAfter(DateTime.now()))
       lessonState = LessonState.CURRENT;
     else
       lessonState = LessonState.ELAPSED;
@@ -89,3 +101,20 @@ class Lesson {
 }
 
 enum LessonState { CURRENT, UPCOMING, ELAPSED }
+
+Day testDay = Day(date: DateTime(2021, 01, 26), rawLessons: [
+  Lesson(
+    "08:00",
+    "12:50",
+    "SALLE_01",
+    "Cours C++",
+    "Professeur",
+  ),
+  Lesson(
+    "13:00",
+    "15:00",
+    "SALLE_01",
+    "Cours C++",
+    "Professeur",
+  ),
+]);

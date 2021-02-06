@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(vge LANGUAGES CXX)
+project(chronopsi LANGUAGES CXX)
 
 set(BINARY_NAME "Chronopsi")
 

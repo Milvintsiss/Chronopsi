@@ -1,11 +1,12 @@
 import 'package:android_intent/android_intent.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_duration_picker/flutter_duration_picker.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:number_selection/number_selection.dart';
 
 import '../database.dart';
-import '../day.dart';
+import 'day.dart';
 import 'configuration.dart';
-import 'custom_duration_picker.dart';
-import 'custom_number_selection.dart';
 
 class AlarmGeneration {
   bool openClockAppAfterGeneration = true;
@@ -61,16 +62,26 @@ class AlarmGeneration {
                             ),
                             SizedBox(
                               height: 40,
-                              child: CustomNumberSelection(
-                                firstColor: Theme.of(context).primaryColorLight,
-                                textColor: Theme.of(context).primaryColor,
+                              child: NumberSelection(
+                                theme: NumberSelectionTheme(
+                                  draggableCircleColor:
+                                      Theme.of(context).primaryColorLight,
+                                  numberColor: Theme.of(context).primaryColor,
+                                  iconsColor:
+                                      Theme.of(context).primaryColorLight,
+                                ),
                                 direction: Axis.horizontal,
                                 initialValue: numberOfDaysToGenerate,
                                 maxValue: 7,
                                 minValue: 1,
                                 withSpring: true,
-                                onChanged: (newValue) =>
-                                    numberOfDaysToGenerate = newValue,
+                                onChanged: (newValue) {
+                                  numberOfDaysToGenerate = newValue;
+                                },
+                                onOutOfConstraints: () async {
+                                  if (await Vibrate.canVibrate)
+                                    Vibrate.feedback(FeedbackType.heavy);
+                                },
                               ),
                             ),
                             Text(
@@ -98,7 +109,7 @@ class AlarmGeneration {
                     ),
                     Transform.scale(
                       scale: 0.6,
-                      child: CustomDurationPicker(
+                      child: DurationPicker(
                           circleColor: Theme.of(context).primaryColorLight,
                           duration: duration,
                           onChange: (newValue) {
@@ -131,14 +142,16 @@ class AlarmGeneration {
                   },
                   Theme.of(context).primaryColorDark,
                 ),
-                RaisedButton(
-                  color: Theme.of(context).primaryColorDark,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(100)),
-                      side: BorderSide(
-                        color: Theme.of(context).primaryColorLight,
-                        width: 2,
-                      )),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Theme.of(context).primaryColorDark,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(100)),
+                        side: BorderSide(
+                          color: Theme.of(context).primaryColorLight,
+                          width: 2,
+                        )),
+                  ),
                   child: Text("Générer",
                       style: TextStyle(
                           color: Theme.of(context).primaryColorLight,

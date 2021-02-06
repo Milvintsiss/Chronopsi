@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:vge/library/alarm_generation.dart';
-import 'package:vge/library/configuration.dart';
-import 'package:vge/library/custom_number_selection.dart';
+import 'package:chronopsi/library/alarm_generation.dart';
+import 'package:chronopsi/library/configuration.dart';
+import 'package:chronopsi/library/custom_number_selection.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, this.configuration}) : super(key: key);
@@ -39,17 +39,17 @@ class _SettingsPageState extends State<SettingsPage> {
             showOptionWidgetCount("Durée de validité du cache (en jours)",
                 widget.configuration.cacheKeepingDuration, (newValue) {
               widget.configuration.sharedPreferences
-                  .setInt('cacheKeepingDuration', newValue);
+                  .setInt(cacheKeepingDurationKey, newValue);
               setState(() {
                 widget.configuration.cacheKeepingDuration = newValue;
               });
             }),
             showOptionWidget(
-              "Coupler les cours ayant le même label qui se suivent",
+              "Coupler les cours ayant le même label se suivant",
               widget.configuration.concatenateSimilarLessons,
               (newValue) {
                 widget.configuration.sharedPreferences
-                    .setBool('concatenateSimilarLessons', newValue);
+                    .setBool(concatenateSimilarLessonsKey, newValue);
                 setState(() {
                   widget.configuration.concatenateSimilarLessons = newValue;
                 });
@@ -61,7 +61,7 @@ class _SettingsPageState extends State<SettingsPage> {
               widget.configuration.cleanDisplay,
               (newValue) {
                 widget.configuration.sharedPreferences
-                    .setBool('cleanDesign', newValue);
+                    .setBool(cleanDisplayKey, newValue);
                 setState(() {
                   widget.configuration.cleanDisplay = newValue;
                 });
@@ -185,10 +185,12 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget showGenerateAlarmsButton() {
-    return RaisedButton(
-      color: Theme.of(context).primaryColorLight,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(100))),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        primary: Theme.of(context).primaryColorLight,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(100))),
+      ),
       child: Text(
         "Générer des alarmes",
         style: TextStyle(fontSize: 18),

@@ -16,6 +16,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
   final String room;
   final String subject;
   final String professor;
+  final bool wasAbsent;
   Lesson(
       {@required this.day,
       @required this.savingDate,
@@ -24,12 +25,14 @@ class Lesson extends DataClass implements Insertable<Lesson> {
       this.endTime,
       this.room,
       this.subject,
-      this.professor});
+      this.professor,
+      this.wasAbsent});
   factory Lesson.fromData(Map<String, dynamic> data, GeneratedDatabase db,
       {String prefix}) {
     final effectivePrefix = prefix ?? '';
     final intType = db.typeSystem.forDartType<int>();
     final stringType = db.typeSystem.forDartType<String>();
+    final boolType = db.typeSystem.forDartType<bool>();
     return Lesson(
       day: intType.mapFromDatabaseResponse(data['${effectivePrefix}day']),
       savingDate: intType
@@ -45,6 +48,8 @@ class Lesson extends DataClass implements Insertable<Lesson> {
           stringType.mapFromDatabaseResponse(data['${effectivePrefix}subject']),
       professor: stringType
           .mapFromDatabaseResponse(data['${effectivePrefix}professor']),
+      wasAbsent: boolType
+          .mapFromDatabaseResponse(data['${effectivePrefix}was_absent']),
     );
   }
   @override
@@ -74,6 +79,9 @@ class Lesson extends DataClass implements Insertable<Lesson> {
     if (!nullToAbsent || professor != null) {
       map['professor'] = Variable<String>(professor);
     }
+    if (!nullToAbsent || wasAbsent != null) {
+      map['was_absent'] = Variable<bool>(wasAbsent);
+    }
     return map;
   }
 
@@ -98,6 +106,9 @@ class Lesson extends DataClass implements Insertable<Lesson> {
       professor: professor == null && nullToAbsent
           ? const Value.absent()
           : Value(professor),
+      wasAbsent: wasAbsent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wasAbsent),
     );
   }
 
@@ -113,6 +124,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
       room: serializer.fromJson<String>(json['room']),
       subject: serializer.fromJson<String>(json['subject']),
       professor: serializer.fromJson<String>(json['professor']),
+      wasAbsent: serializer.fromJson<bool>(json['wasAbsent']),
     );
   }
   @override
@@ -127,6 +139,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
       'room': serializer.toJson<String>(room),
       'subject': serializer.toJson<String>(subject),
       'professor': serializer.toJson<String>(professor),
+      'wasAbsent': serializer.toJson<bool>(wasAbsent),
     };
   }
 
@@ -138,7 +151,8 @@ class Lesson extends DataClass implements Insertable<Lesson> {
           String endTime,
           String room,
           String subject,
-          String professor}) =>
+          String professor,
+          bool wasAbsent}) =>
       Lesson(
         day: day ?? this.day,
         savingDate: savingDate ?? this.savingDate,
@@ -148,6 +162,7 @@ class Lesson extends DataClass implements Insertable<Lesson> {
         room: room ?? this.room,
         subject: subject ?? this.subject,
         professor: professor ?? this.professor,
+        wasAbsent: wasAbsent ?? this.wasAbsent,
       );
   @override
   String toString() {
@@ -159,7 +174,8 @@ class Lesson extends DataClass implements Insertable<Lesson> {
           ..write('endTime: $endTime, ')
           ..write('room: $room, ')
           ..write('subject: $subject, ')
-          ..write('professor: $professor')
+          ..write('professor: $professor, ')
+          ..write('wasAbsent: $wasAbsent')
           ..write(')'))
         .toString();
   }
@@ -175,8 +191,12 @@ class Lesson extends DataClass implements Insertable<Lesson> {
                   startTime.hashCode,
                   $mrjc(
                       endTime.hashCode,
-                      $mrjc(room.hashCode,
-                          $mrjc(subject.hashCode, professor.hashCode))))))));
+                      $mrjc(
+                          room.hashCode,
+                          $mrjc(
+                              subject.hashCode,
+                              $mrjc(professor.hashCode,
+                                  wasAbsent.hashCode)))))))));
   @override
   bool operator ==(dynamic other) =>
       identical(this, other) ||
@@ -188,7 +208,8 @@ class Lesson extends DataClass implements Insertable<Lesson> {
           other.endTime == this.endTime &&
           other.room == this.room &&
           other.subject == this.subject &&
-          other.professor == this.professor);
+          other.professor == this.professor &&
+          other.wasAbsent == this.wasAbsent);
 }
 
 class LessonsCompanion extends UpdateCompanion<Lesson> {
@@ -200,6 +221,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
   final Value<String> room;
   final Value<String> subject;
   final Value<String> professor;
+  final Value<bool> wasAbsent;
   const LessonsCompanion({
     this.day = const Value.absent(),
     this.savingDate = const Value.absent(),
@@ -209,6 +231,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     this.room = const Value.absent(),
     this.subject = const Value.absent(),
     this.professor = const Value.absent(),
+    this.wasAbsent = const Value.absent(),
   });
   LessonsCompanion.insert({
     @required int day,
@@ -219,6 +242,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     this.room = const Value.absent(),
     this.subject = const Value.absent(),
     this.professor = const Value.absent(),
+    this.wasAbsent = const Value.absent(),
   })  : day = Value(day),
         savingDate = Value(savingDate),
         logIn = Value(logIn);
@@ -231,6 +255,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     Expression<String> room,
     Expression<String> subject,
     Expression<String> professor,
+    Expression<bool> wasAbsent,
   }) {
     return RawValuesInsertable({
       if (day != null) 'day': day,
@@ -241,6 +266,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
       if (room != null) 'room': room,
       if (subject != null) 'subject': subject,
       if (professor != null) 'professor': professor,
+      if (wasAbsent != null) 'was_absent': wasAbsent,
     });
   }
 
@@ -252,7 +278,8 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
       Value<String> endTime,
       Value<String> room,
       Value<String> subject,
-      Value<String> professor}) {
+      Value<String> professor,
+      Value<bool> wasAbsent}) {
     return LessonsCompanion(
       day: day ?? this.day,
       savingDate: savingDate ?? this.savingDate,
@@ -262,6 +289,7 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
       room: room ?? this.room,
       subject: subject ?? this.subject,
       professor: professor ?? this.professor,
+      wasAbsent: wasAbsent ?? this.wasAbsent,
     );
   }
 
@@ -292,6 +320,9 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
     if (professor.present) {
       map['professor'] = Variable<String>(professor.value);
     }
+    if (wasAbsent.present) {
+      map['was_absent'] = Variable<bool>(wasAbsent.value);
+    }
     return map;
   }
 
@@ -305,7 +336,8 @@ class LessonsCompanion extends UpdateCompanion<Lesson> {
           ..write('endTime: $endTime, ')
           ..write('room: $room, ')
           ..write('subject: $subject, ')
-          ..write('professor: $professor')
+          ..write('professor: $professor, ')
+          ..write('wasAbsent: $wasAbsent')
           ..write(')'))
         .toString();
   }
@@ -411,9 +443,30 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
     );
   }
 
+  final VerificationMeta _wasAbsentMeta = const VerificationMeta('wasAbsent');
+  GeneratedBoolColumn _wasAbsent;
   @override
-  List<GeneratedColumn> get $columns =>
-      [day, savingDate, logIn, startTime, endTime, room, subject, professor];
+  GeneratedBoolColumn get wasAbsent => _wasAbsent ??= _constructWasAbsent();
+  GeneratedBoolColumn _constructWasAbsent() {
+    return GeneratedBoolColumn(
+      'was_absent',
+      $tableName,
+      true,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [
+        day,
+        savingDate,
+        logIn,
+        startTime,
+        endTime,
+        room,
+        subject,
+        professor,
+        wasAbsent
+      ];
   @override
   $LessonsTable get asDslTable => this;
   @override
@@ -465,6 +518,10 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
       context.handle(_professorMeta,
           professor.isAcceptableOrUnknown(data['professor'], _professorMeta));
     }
+    if (data.containsKey('was_absent')) {
+      context.handle(_wasAbsentMeta,
+          wasAbsent.isAcceptableOrUnknown(data['was_absent'], _wasAbsentMeta));
+    }
     return context;
   }
 
@@ -482,12 +539,309 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, Lesson> {
   }
 }
 
+class CalendarDay extends DataClass implements Insertable<CalendarDay> {
+  final int day;
+  final int savingDate;
+  final String logIn;
+  final String state;
+  CalendarDay(
+      {@required this.day,
+      @required this.savingDate,
+      @required this.logIn,
+      @required this.state});
+  factory CalendarDay.fromData(Map<String, dynamic> data, GeneratedDatabase db,
+      {String prefix}) {
+    final effectivePrefix = prefix ?? '';
+    final intType = db.typeSystem.forDartType<int>();
+    final stringType = db.typeSystem.forDartType<String>();
+    return CalendarDay(
+      day: intType.mapFromDatabaseResponse(data['${effectivePrefix}day']),
+      savingDate: intType
+          .mapFromDatabaseResponse(data['${effectivePrefix}saving_date']),
+      logIn:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}log_in']),
+      state:
+          stringType.mapFromDatabaseResponse(data['${effectivePrefix}state']),
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (!nullToAbsent || day != null) {
+      map['day'] = Variable<int>(day);
+    }
+    if (!nullToAbsent || savingDate != null) {
+      map['saving_date'] = Variable<int>(savingDate);
+    }
+    if (!nullToAbsent || logIn != null) {
+      map['log_in'] = Variable<String>(logIn);
+    }
+    if (!nullToAbsent || state != null) {
+      map['state'] = Variable<String>(state);
+    }
+    return map;
+  }
+
+  CalendarDaysCompanion toCompanion(bool nullToAbsent) {
+    return CalendarDaysCompanion(
+      day: day == null && nullToAbsent ? const Value.absent() : Value(day),
+      savingDate: savingDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(savingDate),
+      logIn:
+          logIn == null && nullToAbsent ? const Value.absent() : Value(logIn),
+      state:
+          state == null && nullToAbsent ? const Value.absent() : Value(state),
+    );
+  }
+
+  factory CalendarDay.fromJson(Map<String, dynamic> json,
+      {ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return CalendarDay(
+      day: serializer.fromJson<int>(json['day']),
+      savingDate: serializer.fromJson<int>(json['savingDate']),
+      logIn: serializer.fromJson<String>(json['logIn']),
+      state: serializer.fromJson<String>(json['state']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer serializer}) {
+    serializer ??= moorRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'day': serializer.toJson<int>(day),
+      'savingDate': serializer.toJson<int>(savingDate),
+      'logIn': serializer.toJson<String>(logIn),
+      'state': serializer.toJson<String>(state),
+    };
+  }
+
+  CalendarDay copyWith({int day, int savingDate, String logIn, String state}) =>
+      CalendarDay(
+        day: day ?? this.day,
+        savingDate: savingDate ?? this.savingDate,
+        logIn: logIn ?? this.logIn,
+        state: state ?? this.state,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('CalendarDay(')
+          ..write('day: $day, ')
+          ..write('savingDate: $savingDate, ')
+          ..write('logIn: $logIn, ')
+          ..write('state: $state')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => $mrjf($mrjc(day.hashCode,
+      $mrjc(savingDate.hashCode, $mrjc(logIn.hashCode, state.hashCode))));
+  @override
+  bool operator ==(dynamic other) =>
+      identical(this, other) ||
+      (other is CalendarDay &&
+          other.day == this.day &&
+          other.savingDate == this.savingDate &&
+          other.logIn == this.logIn &&
+          other.state == this.state);
+}
+
+class CalendarDaysCompanion extends UpdateCompanion<CalendarDay> {
+  final Value<int> day;
+  final Value<int> savingDate;
+  final Value<String> logIn;
+  final Value<String> state;
+  const CalendarDaysCompanion({
+    this.day = const Value.absent(),
+    this.savingDate = const Value.absent(),
+    this.logIn = const Value.absent(),
+    this.state = const Value.absent(),
+  });
+  CalendarDaysCompanion.insert({
+    @required int day,
+    @required int savingDate,
+    @required String logIn,
+    @required String state,
+  })  : day = Value(day),
+        savingDate = Value(savingDate),
+        logIn = Value(logIn),
+        state = Value(state);
+  static Insertable<CalendarDay> custom({
+    Expression<int> day,
+    Expression<int> savingDate,
+    Expression<String> logIn,
+    Expression<String> state,
+  }) {
+    return RawValuesInsertable({
+      if (day != null) 'day': day,
+      if (savingDate != null) 'saving_date': savingDate,
+      if (logIn != null) 'log_in': logIn,
+      if (state != null) 'state': state,
+    });
+  }
+
+  CalendarDaysCompanion copyWith(
+      {Value<int> day,
+      Value<int> savingDate,
+      Value<String> logIn,
+      Value<String> state}) {
+    return CalendarDaysCompanion(
+      day: day ?? this.day,
+      savingDate: savingDate ?? this.savingDate,
+      logIn: logIn ?? this.logIn,
+      state: state ?? this.state,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (day.present) {
+      map['day'] = Variable<int>(day.value);
+    }
+    if (savingDate.present) {
+      map['saving_date'] = Variable<int>(savingDate.value);
+    }
+    if (logIn.present) {
+      map['log_in'] = Variable<String>(logIn.value);
+    }
+    if (state.present) {
+      map['state'] = Variable<String>(state.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CalendarDaysCompanion(')
+          ..write('day: $day, ')
+          ..write('savingDate: $savingDate, ')
+          ..write('logIn: $logIn, ')
+          ..write('state: $state')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CalendarDaysTable extends CalendarDays
+    with TableInfo<$CalendarDaysTable, CalendarDay> {
+  final GeneratedDatabase _db;
+  final String _alias;
+  $CalendarDaysTable(this._db, [this._alias]);
+  final VerificationMeta _dayMeta = const VerificationMeta('day');
+  GeneratedIntColumn _day;
+  @override
+  GeneratedIntColumn get day => _day ??= _constructDay();
+  GeneratedIntColumn _constructDay() {
+    return GeneratedIntColumn(
+      'day',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _savingDateMeta = const VerificationMeta('savingDate');
+  GeneratedIntColumn _savingDate;
+  @override
+  GeneratedIntColumn get savingDate => _savingDate ??= _constructSavingDate();
+  GeneratedIntColumn _constructSavingDate() {
+    return GeneratedIntColumn(
+      'saving_date',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _logInMeta = const VerificationMeta('logIn');
+  GeneratedTextColumn _logIn;
+  @override
+  GeneratedTextColumn get logIn => _logIn ??= _constructLogIn();
+  GeneratedTextColumn _constructLogIn() {
+    return GeneratedTextColumn(
+      'log_in',
+      $tableName,
+      false,
+    );
+  }
+
+  final VerificationMeta _stateMeta = const VerificationMeta('state');
+  GeneratedTextColumn _state;
+  @override
+  GeneratedTextColumn get state => _state ??= _constructState();
+  GeneratedTextColumn _constructState() {
+    return GeneratedTextColumn(
+      'state',
+      $tableName,
+      false,
+    );
+  }
+
+  @override
+  List<GeneratedColumn> get $columns => [day, savingDate, logIn, state];
+  @override
+  $CalendarDaysTable get asDslTable => this;
+  @override
+  String get $tableName => _alias ?? 'calendar_days';
+  @override
+  final String actualTableName = 'calendar_days';
+  @override
+  VerificationContext validateIntegrity(Insertable<CalendarDay> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('day')) {
+      context.handle(
+          _dayMeta, day.isAcceptableOrUnknown(data['day'], _dayMeta));
+    } else if (isInserting) {
+      context.missing(_dayMeta);
+    }
+    if (data.containsKey('saving_date')) {
+      context.handle(
+          _savingDateMeta,
+          savingDate.isAcceptableOrUnknown(
+              data['saving_date'], _savingDateMeta));
+    } else if (isInserting) {
+      context.missing(_savingDateMeta);
+    }
+    if (data.containsKey('log_in')) {
+      context.handle(
+          _logInMeta, logIn.isAcceptableOrUnknown(data['log_in'], _logInMeta));
+    } else if (isInserting) {
+      context.missing(_logInMeta);
+    }
+    if (data.containsKey('state')) {
+      context.handle(
+          _stateMeta, state.isAcceptableOrUnknown(data['state'], _stateMeta));
+    } else if (isInserting) {
+      context.missing(_stateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => <GeneratedColumn>{};
+  @override
+  CalendarDay map(Map<String, dynamic> data, {String tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : null;
+    return CalendarDay.fromData(data, _db, prefix: effectivePrefix);
+  }
+
+  @override
+  $CalendarDaysTable createAlias(String alias) {
+    return $CalendarDaysTable(_db, alias);
+  }
+}
+
 abstract class _$AppMoorDatabase extends GeneratedDatabase {
   _$AppMoorDatabase(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   $LessonsTable _lessons;
   $LessonsTable get lessons => _lessons ??= $LessonsTable(this);
+  $CalendarDaysTable _calendarDays;
+  $CalendarDaysTable get calendarDays =>
+      _calendarDays ??= $CalendarDaysTable(this);
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [lessons];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [lessons, calendarDays];
 }

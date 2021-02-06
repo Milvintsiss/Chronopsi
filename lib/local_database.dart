@@ -1,6 +1,8 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:vge/day.dart';
+
 import 'package:path/path.dart' as p;
+
+import 'library/day.dart';
 
 const schedulerCacheTableName = 'schedulerCache';
 
