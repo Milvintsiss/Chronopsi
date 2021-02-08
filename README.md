@@ -8,14 +8,20 @@
 ##### *Also allows you to view your school calendar and grades.*
 
 ![Demo](https://github.com/Milvintsiss/Chronopsi/blob/master/doc/Demo%201.4.0.gif)
+
+
 Autor: [Milvintsiss](https://milvintsiss.com/)
 
 [chronopsi.fr/](https://chronopsi.fr/)
 
 [PlayStore link](https://play.google.com/store/apps/details?id=com.milvintsiss.chronopsi)
+
 [AppStore link](https://apps.apple.com/fr/app/chronopsi/id1540249743)
+
 [Windows installer](https://bit.ly/chronopsiv1-4-0)
+
 [Windows bundle](https://drive.google.com/drive/folders/1ECKIUzMFPSuSAjtUednisFAPDCS-G8E8?usp=sharing)
+
 [Linux bundle](https://drive.google.com/drive/folders/1y2E2F9XZtszR9xMBs4UGjfKpoKMIkNQG?usp=sharing)
 
 ### Toute aide ou suggestion concernant le développement de Chronopsi est la bienvenue.
