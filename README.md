@@ -18,9 +18,9 @@ Autor: [Milvintsiss](https://milvintsiss.com/)
 
 [AppStore link](https://apps.apple.com/fr/app/chronopsi/id1540249743)
 
-[Windows installer](https://bit.ly/chronopsiv1-4-0)
+[Windows installer](http://bit.ly/chronopsiv1-4-1)
 
-[Windows bundle](https://drive.google.com/drive/folders/1ECKIUzMFPSuSAjtUednisFAPDCS-G8E8?usp=sharing)
+[Windows bundle](http://bit.ly/chronopsi-windows-bundle)
 
 [Linux bundle](https://drive.google.com/drive/folders/1y2E2F9XZtszR9xMBs4UGjfKpoKMIkNQG?usp=sharing)
 
