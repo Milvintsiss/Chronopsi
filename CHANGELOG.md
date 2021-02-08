@@ -1,3 +1,6 @@
+## [1.4.1] - 08/02/2021
+
+* Fix concatenation of lessons with different teacher
 
 ## [1.4.0] - 06/02/2021  
   

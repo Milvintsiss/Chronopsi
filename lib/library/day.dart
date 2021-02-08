@@ -18,7 +18,8 @@ class Day {
           if (lessons[i].subject == lessons[i + 1].subject &&
               lessons[i].endTime == lessons[i + 1].startTime &&
               lessons[i].room == lessons[i + 1].room &&
-              lessons[i].wasAbsent == lessons[i + 1].wasAbsent) {
+              lessons[i].wasAbsent == lessons[i + 1].wasAbsent &&
+          lessons[i].professor == lessons[i + 1].professor) {
             lessons[i].endTime = lessons[i + 1].endTime;
             lessons.removeAt(i + 1);
           }
