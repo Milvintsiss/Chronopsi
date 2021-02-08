@@ -57,7 +57,7 @@ DynamicLibrary _openOnLinux() {
 DynamicLibrary _openOnWindows() {
   final script = File(Platform.script.toFilePath());
   print('Script PATH: ${script.path}');
-  final libraryNextToScript = File('${script.parent.path}\\lsqlite3.dll');
+  final libraryNextToScript = File('${script.parent.path}\\sqlite3.dll');
   print('Library PATH: ${libraryNextToScript.path}');
   return DynamicLibrary.open(libraryNextToScript.path);
 }
