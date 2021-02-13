@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:chronopsi/library/alarm_generation.dart';
 import 'package:chronopsi/library/configuration.dart';
-import 'package:chronopsi/library/custom_number_selection.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:number_selection/number_selection.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, this.configuration}) : super(key: key);
@@ -166,16 +167,24 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             SizedBox(
               width: 60,
-              child: CustomNumberSelection(
+              child: NumberSelection(
                 onChanged: onChanged,
-                firstColor: Theme.of(context).primaryColorLight,
-                textColor: Theme.of(context).primaryColor,
-                backgroundColor: Theme.of(context).primaryColorDark.withOpacity(0.7),
+                theme: NumberSelectionTheme(
+                  draggableCircleColor:
+                  Theme.of(context).primaryColorLight,
+                  numberColor: Theme.of(context).primaryColor,
+                  iconsColor:
+                  Theme.of(context).primaryColorLight,
+                ),
                 direction: Axis.horizontal,
                 initialValue: value,
                 maxValue: 30,
                 minValue: 0,
                 withSpring: true,
+                onOutOfConstraints: () async {
+                  if ((Platform.isAndroid || Platform.isIOS) && await Vibrate.canVibrate)
+                    Vibrate.feedback(FeedbackType.heavy);
+                },
               ),
             )
           ],
