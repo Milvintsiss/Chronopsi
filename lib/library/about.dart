@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chronopsi/library/mailUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +29,9 @@ void aboutDialog(BuildContext context, Configuration configuration) {
                       Theme.of(context).primaryColorLight.withOpacity(0.8)))),
       child: AboutDialog(
         applicationName: "Chronopsi",
-        applicationVersion:
-            Platform.isWindows || Platform.isLinux ? null : configuration.packageInfo.version,
+        applicationVersion: Platform.isWindows || Platform.isLinux
+            ? null
+            : configuration.packageInfo.version,
         applicationIcon: SizedBox(
           height: 70,
           width: 70,
@@ -47,9 +49,7 @@ void aboutDialog(BuildContext context, Configuration configuration) {
               children: [
                 ClickableTextSpan(
                   text: "Un ptiot café?",
-                  onTap: () => launch(
-                    linkBuyMeACoffee,
-                  ),
+                  onTap: () => launch(linkBuyMeACoffee),
                 ),
                 TextSpan(
                     text: "\n\nUn bug? Une suggestion? -> ",
@@ -57,11 +57,15 @@ void aboutDialog(BuildContext context, Configuration configuration) {
                         TextStyle(color: Theme.of(context).primaryColorLight)),
                 ClickableTextSpan(
                   text: "contact@milvintsiss.com",
-                  onTap: () => launch(
-                    'mailto:$contactMail?subject=Chronopsi&body='
-                    'OS%3A ${Platform.operatingSystem}%0A'
-                    'Version%3A ${Platform.operatingSystemVersion}',
-                  ),
+                  onTap: () {
+                    MailLauncher mailLauncher = MailLauncher(
+                        emailAddress: contactMail,
+                        subject: "Chronopsi",
+                        body: "OS: ${Platform.operatingSystem}\n"
+                            "Version: ${Platform.operatingSystemVersion}");
+                    print(mailLauncher);
+                    launch(mailLauncher.toString());
+                  },
                 ),
                 TextSpan(
                   text:
@@ -70,16 +74,14 @@ void aboutDialog(BuildContext context, Configuration configuration) {
                 ),
                 ClickableTextSpan(
                   text: linkGithub,
-                  onTap: () => launch(
-                    linkGithub,
-                  ),
+                  onTap: () => launch(linkGithub),
                 ),
                 TextSpan(
                   text:
                       "\n\nChronopsi est un projet étudiant à but non lucratif, "
                       "cependant vous pouvez rémunerer son créateur en participant "
                       "à l'amélioration de son portfolio par l'ajout d'une note "
-                      "sur le ",
+                      "sur ${Platform.isIOS ? "l'" : "le "}",
                   style: TextStyle(color: Theme.of(context).primaryColorLight),
                 ),
                 if (Platform.isAndroid || Platform.isIOS)

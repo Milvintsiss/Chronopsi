@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:chronopsi/library/configuration.dart';
 
 import 'day.dart';
+import 'mailUtils.dart';
 
 const emailEPSI = 'administratif@nantes-epsi.fr';
 
@@ -38,12 +39,16 @@ void justifyAbsence(BuildContext context, Configuration configuration,
       " " +
       configuration.logIn.split('.')[0].replaceRange(
           0, 1, configuration.logIn.split('.')[0][0].toUpperCase());
-  String body = 'Madame, Monsieur,%0A'
-      'Je vous prie de bien vouloir excuser mon absence lors du cours de ${lesson.startTime} à ${lesson.endTime} le ${daysWeek[date.weekday]} ${date.day} ${months[date.month - 1]}.%0A'
-      'En effet, je n\'ai pas pu être présent lors de ce cours car [raison].%0A'
-      'Je vous saurais gré d’en prendre note et m’en remets à votre compréhension.%0A'
-      '%0A'
-      'Je vous prie de croire, Madame, Monsieur, à l’assurance de mes salutations les plus sincères.';
-  launch(
-      'mailto:$emailEPSI?subject=Absence $student&body=$body');
+  String subject = 'Absence $student';
+  String body = 'Madame, Monsieur,\n'
+      'Je vous prie de bien vouloir excuser mon absence lors du cours de ${lesson.startTime} à ${lesson.endTime} le ${daysWeek[date.weekday - 1]} ${date.day} ${months[date.month - 1]}.\n'
+      'En effet, je n\'ai pas pu être présent lors de ce cours car [raison].\n'
+      'Je vous saurais gré d’en prendre note et m’en remets à votre compréhension.\n'
+      '\n'
+      'Je vous prie de croire, Madame, Monsieur, à l\'assurance de mes salutations les plus sincères.';
+
+  MailLauncher mailLauncher =
+      MailLauncher(emailAddress: emailEPSI, subject: subject, body: body);
+  print(mailLauncher);
+  launch(mailLauncher.toString());
 }

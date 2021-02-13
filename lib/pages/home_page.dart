@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:calendar_strip/calendar_strip.dart';
+import 'package:chronopsi/library/calendarDay.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import 'package:chronopsi/library/teamsUtils.dart';
 import 'package:chronopsi/pages/settings_page.dart';
 import '../database.dart';
 import '../library/day.dart';
+import '../local_moor_database.dart';
 import '../myLearningBoxAPI.dart';
 import 'calendar_page.dart';
 import 'connection_page.dart';
@@ -1060,7 +1062,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget showGoToNextLessonButton() {
-    if (!isLoading && day.isEmpty)
+    if (!isLoading && !isLoadingForBeecome && day.isEmpty)
       return Positioned(
         bottom: 15,
         left: 20,
@@ -1106,21 +1108,41 @@ class _HomePageState extends State<HomePage> {
   }
 
   void goToNextLesson() async {
-    Day _day = Day(date: selectedDay, rawLessons: []);
-    _day.isEmpty = true;
-    while (_day.isEmpty) {
-      //repeat while there is no lessons for the selected _day
+    List<CalendarDay> calendarDays = await widget
+        .configuration.localMoorDatabase
+        .getAllCalendarDays(widget.configuration.logIn);
+
+    int indexOfCurrentDay = calendarDays.indexWhere((calendarDay) =>
+        isSameDay(calendarDay.date, selectedDay));
+
+    for (int i = indexOfCurrentDay + 1; calendarDays[i].dayState ==
+        DayState.holiday && i < calendarDays.length - 1; i++){
+      await Future.delayed(Duration(milliseconds: 100));
       setState(() {
         isLoading = true;
-        selectedDay = selectedDay.add(Duration(days: 1));
+        selectedDay = calendarDays[i + 1].date;
       });
-      _day = await Database()
-          .getDay(configuration: widget.configuration, dateTime: selectedDay);
-      _day..init(widget.configuration.concatenateSimilarLessons);
-      await Future.delayed(Duration(
-          milliseconds: 100)); //to let the time to the animation to achieve
     }
-    day = _day;
+
     listenDay();
   }
 }
+
+// void goToNextLesson() async {
+//   Day _day = Day(date: selectedDay, rawLessons: []);
+//   _day.isEmpty = true;
+//   while (_day.isEmpty) {
+//     //repeat while there is no lessons for the selected _day
+//     setState(() {
+//       isLoading = true;
+//       selectedDay = selectedDay.add(Duration(days: 1));
+//     });
+//     _day = await Database()
+//         .getDay(configuration: widget.configuration, dateTime: selectedDay);
+//     _day..init(widget.configuration.concatenateSimilarLessons);
+//     await Future.delayed(Duration(
+//         milliseconds: 100)); //to let the time to the animation to achieve
+//   }
+//   day = _day;
+//   listenDay();
+// }

@@ -18,12 +18,13 @@ Autor: [Milvintsiss](https://milvintsiss.com/)
 
 [AppStore link](https://apps.apple.com/fr/app/chronopsi/id1540249743)
 
-[Windows installer](https://bit.ly/chronopsiv1-4-0)
+[Windows installer](https://bit.ly/chronopsi-windows-installer)
 
-[Windows bundle](https://drive.google.com/drive/folders/1ECKIUzMFPSuSAjtUednisFAPDCS-G8E8?usp=sharing)
+[Windows bundle](https://bit.ly/chronopsi-windows-bundle)
 
-[Linux bundle](https://drive.google.com/drive/folders/1y2E2F9XZtszR9xMBs4UGjfKpoKMIkNQG?usp=sharing)
+[Linux bundle](https://bit.ly/chronopsi-linux-bundle)
 
 ### Toute aide ou suggestion concernant le développement de Chronopsi est la bienvenue.
 
-*TODO:* Web support
+*TODO:* 
+* Web support

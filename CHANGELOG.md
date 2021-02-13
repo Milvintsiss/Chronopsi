@@ -1,13 +1,17 @@
+## [1.4.2] - 12/02/2021
+
+* 
+
 ## [1.4.1] - 08/02/2021
 
-* Fix concatenation of lessons with different teacher
+* Fix concatenation of lessons with different teacher  
 
 ## [1.4.0] - 06/02/2021  
   
 * Massive loadings improvements  
 * Added Calendar page  
 * Added Grades page  
-* New light theme
+* New light theme  
 * You can now see absences in timetable and justify them  
 * You can now launch Teams app directly from Chronopsi  
 * Minor changes:  

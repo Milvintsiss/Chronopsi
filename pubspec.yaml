@@ -4,7 +4,7 @@ autor: Milvintsiss <milvintsiss.com>
 
 publish_to: 'none'
 
-version: 1.4.1+16
+version: 1.4.2+17
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -22,7 +22,7 @@ dependencies:
   #http requests and parsing
   http: ^0.12.2
   dio: ^3.0.10
-  html: ^0.14.0+4
+  html: ^0.15.0
 
   #local storage
   shared_preferences: ^0.5.12+4
@@ -45,7 +45,7 @@ dependencies:
     #path: ../number_selection
 
   #locale
-  intl: ^0.16.1
+  intl: ^0.17.0
 
   #others
   package_info_plus: ^0.6.3

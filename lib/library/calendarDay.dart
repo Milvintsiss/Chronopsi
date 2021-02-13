@@ -11,4 +11,9 @@ class CalendarDay{
   DateTime date;
   DayState dayState;
   DateTime savingDate;
+
+  @override
+  String toString() {
+    return 'CalendarDay{date: $date, dayState: $dayState, savingDate: $savingDate}';
+  }
 }
