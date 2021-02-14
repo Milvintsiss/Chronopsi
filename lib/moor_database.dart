@@ -42,20 +42,15 @@ class CalendarDays extends Table {
 class AppMoorDatabase extends _$AppMoorDatabase {
   AppMoorDatabase()
       : super(LazyDatabase(() async {
-          String dbFolderAndroidIOS;
-          Directory dbFolderDesktop;
+          String dbFolder;
           if (Platform.isAndroid || Platform.isIOS) {
-            dbFolderAndroidIOS = await getDatabasesPath();
-            print("Save folder: $dbFolderAndroidIOS");
+            dbFolder = await getDatabasesPath();
           } else {
-            dbFolderDesktop = await getApplicationSupportDirectory();
-            print("Save folder: ${dbFolderDesktop.path}");
+            final dbFolderDesktop = await getApplicationSupportDirectory();
+            dbFolder = dbFolderDesktop.path;
           }
-          final file = File(p.join(
-              Platform.isAndroid || Platform.isIOS
-                  ? dbFolderAndroidIOS
-                  : dbFolderDesktop.path,
-              'lessons.sqlite'));
+          print("Save folder: $dbFolder");
+          final file = File(p.join(dbFolder, 'lessons.sqlite'));
           return VmDatabase(file, logStatements: true);
         }));
 
@@ -71,6 +66,14 @@ class AppMoorDatabase extends _$AppMoorDatabase {
           await m.createAll();
         }
       });
+
+  Future createAllTablesAgain() async {
+    final migrator = createMigrator();
+    for (var table in allTables) {
+      await customStatement('DROP TABLE ${table.actualTableName};');
+      await migrator.createTable(table);
+    }
+  }
 
   Future<List<Lesson>> getAllLessons(String logIn) =>
       (select(lessons)..where((tbl) => tbl.logIn.equals(logIn))).get();

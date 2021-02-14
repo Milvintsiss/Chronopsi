@@ -41,6 +41,8 @@ class _HomePageState extends State<HomePage> {
   bool isLoadingForBeecome = true;
   Day day;
 
+  Timer errorTimer;
+
   StreamSubscription<Day> dayStream;
 
   int swipeValue = 1;
@@ -57,11 +59,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    if (errorTimer != null) errorTimer.cancel();
     dayStream.cancel();
     super.dispose();
   }
 
   void listenDay() async {
+    if (errorTimer != null) errorTimer.cancel();
+    errorTimer = Timer(Duration(seconds: 10), () {
+      if (isLoadingForBeecome) widget.configuration.error(context);
+    });
+
     bool yieldedNull = false;
     setState(() {
       isLoading = true;

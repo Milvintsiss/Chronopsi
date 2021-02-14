@@ -1,5 +1,7 @@
 ## [1.4.2] - 12/02/2021
 
+* prevent shared_preferences bug
+* added possibility to delete Chronopsi data
 * fix iOS mail links
 * next lesson function algorithm improved
 * windows app description updated

@@ -1,10 +1,16 @@
 import 'dart:io';
 
+import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:chronopsi/moor_database.dart';
 import 'package:flutter/material.dart';
 import 'package:chronopsi/library/alarm_generation.dart';
 import 'package:chronopsi/library/configuration.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:moor/moor.dart';
 import 'package:number_selection/number_selection.dart';
+import 'package:path_provider/path_provider.dart';
+
+import '../root_page.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, this.configuration}) : super(key: key);
@@ -69,6 +75,7 @@ class _SettingsPageState extends State<SettingsPage> {
               },
               Theme.of(context).primaryColor,
             ),
+            showDeleteDataButton(),
             Platform.isAndroid ? showGenerateAlarmsButton() : Container(),
           ],
           physics:
@@ -170,11 +177,9 @@ class _SettingsPageState extends State<SettingsPage> {
               child: NumberSelection(
                 onChanged: onChanged,
                 theme: NumberSelectionTheme(
-                  draggableCircleColor:
-                  Theme.of(context).primaryColorLight,
+                  draggableCircleColor: Theme.of(context).primaryColorLight,
                   numberColor: Theme.of(context).primaryColor,
-                  iconsColor:
-                  Theme.of(context).primaryColorLight,
+                  iconsColor: Theme.of(context).primaryColorLight,
                 ),
                 direction: Axis.horizontal,
                 initialValue: value,
@@ -182,7 +187,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 minValue: 0,
                 withSpring: true,
                 onOutOfConstraints: () async {
-                  if ((Platform.isAndroid || Platform.isIOS) && await Vibrate.canVibrate)
+                  if ((Platform.isAndroid || Platform.isIOS) &&
+                      await Vibrate.canVibrate)
                     Vibrate.feedback(FeedbackType.heavy);
                 },
               ),
@@ -190,6 +196,35 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget showDeleteDataButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        primary: Theme.of(context).primaryColorLight,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(100))),
+      ),
+      child: Text(
+        "Supprimer les données",
+        style: TextStyle(fontSize: 18),
+      ),
+      onPressed: () async {
+        AdaptiveThemeMode adaptiveThemeMode = AdaptiveTheme.of(context).mode;
+        await widget.configuration.sharedPreferences.clear();
+        await widget.configuration.localMoorDatabase.moorDatabase
+            .createAllTablesAgain();
+        await widget.configuration.localMoorDatabase.moorDatabase
+            .close();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => RootPage(
+                      adaptiveThemeMode: adaptiveThemeMode,
+                    ),
+            ));
+      },
     );
   }
 
