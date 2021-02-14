@@ -45,9 +45,7 @@ class _HomePageState extends State<HomePage> {
 
   int swipeValue = 1;
 
-  DateTime selectedDay = DateTime
-      .now()
-      .hour >= 19
+  DateTime selectedDay = DateTime.now().hour >= 19
       ? DateTime.now().add(Duration(days: 1))
       : DateTime.now();
 
@@ -92,9 +90,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme
-          .of(context)
-          .primaryColorDark,
+      backgroundColor: Theme.of(context).primaryColorDark,
       appBar: appBar(),
       drawer: drawer(),
       body: body(),
@@ -103,14 +99,12 @@ class _HomePageState extends State<HomePage> {
 
   AppBar appBar() {
     return AppBar(
-      backgroundColor: Theme
-          .of(context)
-          .primaryColor,
+      backgroundColor: Theme.of(context).primaryColor,
       title: !Platform.isWindows
           ? Center(
-          child: Text(
-            'Chronopsi',
-          ))
+              child: Text(
+              'Chronopsi',
+            ))
           : null,
       actions: [
         IconButton(
@@ -121,44 +115,41 @@ class _HomePageState extends State<HomePage> {
         ),
         Platform.isAndroid
             ? IconButton(
-          icon: Icon(Icons.alarm),
-          onPressed: () =>
-              AlarmGeneration()
-                  .showGenerateAlarmsDialog(context, widget.configuration),
-        )
+                icon: Icon(Icons.alarm),
+                onPressed: () => AlarmGeneration()
+                    .showGenerateAlarmsDialog(context, widget.configuration),
+              )
             : Container(),
         isLoadingForBeecome
             ? Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.5),
-          child: Center(
-            child: SizedBox(
-              width: 15,
-              height: 15,
-              child: Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme
-                          .of(context)
-                          .primaryColorLight),
+                padding: const EdgeInsets.symmetric(horizontal: 16.5),
+                child: Center(
+                  child: SizedBox(
+                    width: 15,
+                    height: 15,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).primaryColorLight),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-        )
+              )
             : IconButton(
-          icon: Icon(
-            Boxicons.bx_calendar_check,
-          ),
-          tooltip: "L'emploi du temps est à jour!",
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(
-                "L'emploi du temps est à jour!",
-                style: TextStyle(color: Colors.green),
+                icon: Icon(
+                  Boxicons.bx_calendar_check,
+                ),
+                tooltip: "L'emploi du temps est à jour!",
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                      "L'emploi du temps est à jour!",
+                      style: TextStyle(color: Colors.green),
+                    ),
+                  ));
+                },
               ),
-            ));
-          },
-        ),
       ],
     );
   }
@@ -167,9 +158,7 @@ class _HomePageState extends State<HomePage> {
     return Drawer(
       elevation: 10,
       child: Container(
-        color: Theme
-            .of(context)
-            .primaryColorDark,
+        color: Theme.of(context).primaryColorDark,
         padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
         child: ListView(
           children: <Widget>[
@@ -181,9 +170,7 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     "Identifiants:",
                     style: TextStyle(
-                        color: Theme
-                            .of(context)
-                            .primaryColorLight,
+                        color: Theme.of(context).primaryColorLight,
                         fontSize: 16),
                   ),
                   Container(
@@ -191,17 +178,13 @@ class _HomePageState extends State<HomePage> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                         border: Border.all(
-                            color: Theme
-                                .of(context)
-                                .primaryColorLight,
+                            color: Theme.of(context).primaryColorLight,
                             width: 3),
                       ),
                       child: Text(
                         widget.configuration.logIn,
                         style: TextStyle(
-                            color: Theme
-                                .of(context)
-                                .primaryColorLight,
+                            color: Theme.of(context).primaryColorLight,
                             fontSize: 20,
                             fontWeight: FontWeight.bold),
                       )),
@@ -210,13 +193,13 @@ class _HomePageState extends State<HomePage> {
             ),
             kDebugMode
                 ? showListTile("Test", Icons.sort, onTap: () {
-              getGradesFromMyLearningBox(widget.configuration);
-            })
+                    getGradesFromMyLearningBox(widget.configuration);
+                  })
                 : Container(),
             kDebugMode
                 ? showListTile("Test2", Icons.sort, onTap: () {
-              widget.configuration.localMoorDatabase.deleteAllDays();
-            })
+                    widget.configuration.localMoorDatabase.deleteAllDays();
+                  })
                 : Container(),
             // showListTile("Actualiser", Icons.refresh, onTap: () {
             //   Navigator.pop(context);
@@ -227,26 +210,24 @@ class _HomePageState extends State<HomePage> {
             // }),
             showListTile("Calendrier", Icons.calendar_today_rounded,
                 onTap: () async {
-                  DateTime date = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              CalendarPage(
-                                configuration: widget.configuration,
-                              )));
-                  Navigator.pop(context);
-                  if (date != null) {
-                    selectedDay = date;
-                    listenDay();
-                  }
-                }),
+              DateTime date = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CalendarPage(
+                            configuration: widget.configuration,
+                          )));
+              Navigator.pop(context);
+              if (date != null) {
+                selectedDay = date;
+                listenDay();
+              }
+            }),
             showListTile("Notes", MdiIcons.schoolOutline, onTap: () async {
               if (widget.configuration.password != null) {
                 await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            GradesPage(
+                        builder: (context) => GradesPage(
                               configuration: widget.configuration,
                             )));
                 Navigator.pop(context);
@@ -255,7 +236,7 @@ class _HomePageState extends State<HomePage> {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   content: Text(
                     "Vous devez avoir enregistré votre mot de passe pour accéder "
-                        "à cette fonctionnalité!",
+                    "à cette fonctionnalité!",
                     style: TextStyle(color: Colors.red),
                   ),
                 ));
@@ -263,22 +244,20 @@ class _HomePageState extends State<HomePage> {
             }),
             showListTile("Changer d'identifiants", MdiIcons.loginVariant,
                 onTap: () async {
-                  await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              LogInPage(
-                                configuration: widget.configuration,
-                              )));
+              await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => LogInPage(
+                            configuration: widget.configuration,
+                          )));
 
-                  Navigator.pop(context);
-                }),
+              Navigator.pop(context);
+            }),
             showListTile("Options", Icons.settings_outlined, onTap: () async {
               await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          SettingsPage(
+                      builder: (context) => SettingsPage(
                             configuration: widget.configuration,
                           )));
               Navigator.pop(context);
@@ -294,9 +273,7 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   "Light:",
                   style: TextStyle(
-                      color: Theme
-                          .of(context)
-                          .primaryColorLight,
+                      color: Theme.of(context).primaryColorLight,
                       fontSize: 20,
                       fontWeight: FontWeight.bold),
                 ),
@@ -305,19 +282,13 @@ class _HomePageState extends State<HomePage> {
                   onChanged: (boolVal) {
                     setState(() {
                       widget.configuration.isDarkTheme =
-                      !widget.configuration.isDarkTheme;
+                          !widget.configuration.isDarkTheme;
                     });
                     AdaptiveTheme.of(context).toggleThemeMode();
                   },
-                  activeColor: Theme
-                      .of(context)
-                      .primaryColor,
-                  inactiveThumbColor: Theme
-                      .of(context)
-                      .primaryColorLight,
-                  inactiveTrackColor: Theme
-                      .of(context)
-                      .primaryColor,
+                  activeColor: Theme.of(context).primaryColor,
+                  inactiveThumbColor: Theme.of(context).primaryColorLight,
+                  inactiveTrackColor: Theme.of(context).primaryColor,
                 )
               ],
             ),
@@ -334,9 +305,7 @@ class _HomePageState extends State<HomePage> {
         padding: EdgeInsets.all(0),
         decoration: BoxDecoration(
             border: Border.all(
-                color: Theme
-                    .of(context)
-                    .primaryColorLight,
+                color: Theme.of(context).primaryColorLight,
                 width: 2,
                 style: BorderStyle.solid),
             borderRadius: BorderRadius.all(Radius.circular(30))),
@@ -344,15 +313,11 @@ class _HomePageState extends State<HomePage> {
           title: Text(
             title,
             style: TextStyle(
-                color: Theme
-                    .of(context)
-                    .primaryColorLight, fontSize: 18),
+                color: Theme.of(context).primaryColorLight, fontSize: 18),
           ),
           leading: Icon(
             icon,
-            color: Theme
-                .of(context)
-                .primaryColorLight,
+            color: Theme.of(context).primaryColorLight,
           ),
           onTap: onTap,
         ),
@@ -378,26 +343,21 @@ class _HomePageState extends State<HomePage> {
           ListView(
             padding: const EdgeInsets.only(top: 100, left: 5, right: 5),
             physics:
-            AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
             children: [
               SizedBox(
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height,
+                height: MediaQuery.of(context).size.height,
                 child: Stack(
                   children: [
                     showHours(),
                     isLoading
                         ? Align(
-                      alignment: Alignment.topCenter,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            Theme
-                                .of(context)
-                                .primaryColorLight),
-                      ),
-                    )
+                            alignment: Alignment.topCenter,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).primaryColorLight),
+                            ),
+                          )
                         : showLessons(),
                   ],
                 ),
@@ -439,24 +399,15 @@ class _HomePageState extends State<HomePage> {
     return Padding(
       padding: EdgeInsets.only(
           top: 2.0,
-          left: MediaQuery
-              .of(context)
-              .size
-              .width / 9,
-          right: MediaQuery
-              .of(context)
-              .size
-              .width / 100),
+          left: MediaQuery.of(context).size.width / 9,
+          right: MediaQuery.of(context).size.width / 100),
       child: Stack(children: [
         for (var i = 0; i < day.lessons.length; i++)
           Padding(
             padding: EdgeInsets.only(
                 top: (day.lessons[i].start - 8) /
                     2 *
-                    (MediaQuery
-                        .of(context)
-                        .size
-                        .height / 7 + 4)),
+                    (MediaQuery.of(context).size.height / 7 + 4)),
             child: InkWell(
               child: Hero(
                 tag: day.lessons[i].startTime,
@@ -464,24 +415,17 @@ class _HomePageState extends State<HomePage> {
                   padding: EdgeInsets.all(4),
                   height: (day.lessons[i].end - day.lessons[i].start) /
                       2 *
-                      MediaQuery
-                          .of(context)
-                          .size
-                          .height /
+                      MediaQuery.of(context).size.height /
                       7,
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(40)),
                       border: Border.all(
-                          color: Theme
-                              .of(context)
-                              .primaryColorLight),
+                          color: Theme.of(context).primaryColorLight),
                       color: day.lessons[i].wasAbsent
                           ? absColor
-                          : Theme
-                          .of(context)
-                          .primaryColorDark,
+                          : Theme.of(context).primaryColorDark,
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -494,10 +438,8 @@ class _HomePageState extends State<HomePage> {
                               child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius:
-                                    BorderRadius.all(Radius.circular(100)),
-                                    color: Theme
-                                        .of(context)
-                                        .primaryColorLight,
+                                        BorderRadius.all(Radius.circular(100)),
+                                    color: Theme.of(context).primaryColorLight,
                                   ),
                                   padding: EdgeInsets.all(6),
                                   child: Text(
@@ -506,9 +448,7 @@ class _HomePageState extends State<HomePage> {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                         color:
-                                        Theme
-                                            .of(context)
-                                            .primaryColorDark,
+                                            Theme.of(context).primaryColorDark,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14),
                                   )),
@@ -519,9 +459,7 @@ class _HomePageState extends State<HomePage> {
                                 day.lessons[i].room,
                                 maxLines: 1,
                                 style: TextStyle(
-                                    color: Theme
-                                        .of(context)
-                                        .primaryColorLight,
+                                    color: Theme.of(context).primaryColorLight,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold),
                               ),
@@ -530,28 +468,24 @@ class _HomePageState extends State<HomePage> {
                         ),
                         (day.lessons[i].end - day.lessons[i].start) / 2 >= 1
                             ? Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(
-                              day.lessons[i].professor,
-                              style: TextStyle(
-                                  color:
-                                  Theme
-                                      .of(context)
-                                      .primaryColorLight,
-                                  fontSize: 11),
-                            ),
-                            Text(
-                              "${day.lessons[i].startTime} -> ${day.lessons[i]
-                                  .endTime}",
-                              style: TextStyle(
-                                  color: Theme
-                                      .of(context)
-                                      .primaryColorLight),
-                            ),
-                          ],
-                        )
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    day.lessons[i].professor,
+                                    style: TextStyle(
+                                        color:
+                                            Theme.of(context).primaryColorLight,
+                                        fontSize: 11),
+                                  ),
+                                  Text(
+                                    "${day.lessons[i].startTime} -> ${day.lessons[i].endTime}",
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .primaryColorLight),
+                                  ),
+                                ],
+                              )
                             : Container(),
                       ],
                     ),
@@ -576,23 +510,13 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(2),
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                      horizontal: MediaQuery
-                          .of(context)
-                          .size
-                          .width / 25),
+                      horizontal: MediaQuery.of(context).size.width / 25),
                   decoration: BoxDecoration(
-                      color: Theme
-                          .of(context)
-                          .primaryColor,
+                      color: Theme.of(context).primaryColor,
                       borderRadius: BorderRadius.all(Radius.circular(30))),
-                  height: MediaQuery
-                      .of(context)
-                      .size
-                      .height / 7,
+                  height: MediaQuery.of(context).size.height / 7,
                   child: Divider(
-                    color: Theme
-                        .of(context)
-                        .primaryColorLight,
+                    color: Theme.of(context).primaryColorLight,
                     thickness: 2,
                   ),
                 ),
@@ -609,10 +533,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Container(
                       color: Colors.transparent,
-                      height: MediaQuery
-                          .of(context)
-                          .size
-                          .height / 7,
+                      height: MediaQuery.of(context).size.height / 7,
                     ),
                     Positioned(
                       left: 10,
@@ -621,18 +542,14 @@ class _HomePageState extends State<HomePage> {
                         height: 30,
                         width: 30,
                         decoration: BoxDecoration(
-                            color: Theme
-                                .of(context)
-                                .primaryColorLight,
+                            color: Theme.of(context).primaryColorLight,
                             borderRadius:
-                            BorderRadius.all(Radius.circular(100))),
+                                BorderRadius.all(Radius.circular(100))),
                         child: Center(
                           child: Text(
                             (index * 2 + 8).toString(),
                             style: TextStyle(
-                                color: Theme
-                                    .of(context)
-                                    .primaryColor),
+                                color: Theme.of(context).primaryColor),
                           ),
                         ),
                       ),
@@ -640,31 +557,24 @@ class _HomePageState extends State<HomePage> {
                     index == 5 || widget.configuration.cleanDisplay
                         ? Container()
                         : Positioned(
-                      left: 10,
-                      top: MediaQuery
-                          .of(context)
-                          .size
-                          .height / 20,
-                      child: Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                            color: Theme
-                                .of(context)
-                                .primaryColorLight,
-                            borderRadius:
-                            BorderRadius.all(Radius.circular(100))),
-                        child: Center(
-                          child: Text(
-                            (index * 2 + 9).toString(),
-                            style: TextStyle(
-                                color: Theme
-                                    .of(context)
-                                    .primaryColor),
+                            left: 10,
+                            top: MediaQuery.of(context).size.height / 20,
+                            child: Container(
+                              height: 30,
+                              width: 30,
+                              decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColorLight,
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(100))),
+                              child: Center(
+                                child: Text(
+                                  (index * 2 + 9).toString(),
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               );
@@ -677,8 +587,7 @@ class _HomePageState extends State<HomePage> {
     lesson.setState(selectedDay);
     showDialog(
         context: context,
-        builder: (context) =>
-            AlertDialog(
+        builder: (context) => AlertDialog(
               insetPadding: EdgeInsets.symmetric(horizontal: 10),
               contentPadding: EdgeInsets.symmetric(horizontal: 0),
               elevation: 0,
@@ -687,12 +596,8 @@ class _HomePageState extends State<HomePage> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(50)),
                   border: Border.all(
-                      color: Theme
-                          .of(context)
-                          .primaryColorDark, width: 4),
-                  color: Theme
-                      .of(context)
-                      .primaryColor,
+                      color: Theme.of(context).primaryColorDark, width: 4),
+                  color: Theme.of(context).primaryColor,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -701,22 +606,17 @@ class _HomePageState extends State<HomePage> {
                       tag: lesson.startTime,
                       child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 20),
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .height / 7,
+                          height: MediaQuery.of(context).size.height / 7,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(40)),
-                            color: Theme
-                                .of(context)
-                                .primaryColorDark,
+                            color: Theme.of(context).primaryColorDark,
                           ),
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Flexible(
                                       flex: 1,
@@ -724,8 +624,7 @@ class _HomePageState extends State<HomePage> {
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(100)),
-                                            color: Theme
-                                                .of(context)
+                                            color: Theme.of(context)
                                                 .primaryColorLight,
                                           ),
                                           padding: EdgeInsets.all(6),
@@ -734,8 +633,7 @@ class _HomePageState extends State<HomePage> {
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                                color: Theme
-                                                    .of(context)
+                                                color: Theme.of(context)
                                                     .primaryColorDark,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14),
@@ -747,8 +645,7 @@ class _HomePageState extends State<HomePage> {
                                         lesson.room,
                                         maxLines: 1,
                                         style: TextStyle(
-                                            color: Theme
-                                                .of(context)
+                                            color: Theme.of(context)
                                                 .primaryColorLight,
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold),
@@ -758,52 +655,49 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 Row(
                                   mainAxisAlignment:
-                                  MainAxisAlignment.spaceEvenly,
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Text(
                                       lesson.professor,
                                       style: TextStyle(
-                                          color: Theme
-                                              .of(context)
+                                          color: Theme.of(context)
                                               .primaryColorLight,
                                           fontSize: 11),
                                     ),
                                     Text(
-                                      "${lesson.startTime} -> ${lesson
-                                          .endTime}",
+                                      "${lesson.startTime} -> ${lesson.endTime}",
                                       style: TextStyle(
-                                          color: Theme
-                                              .of(context)
+                                          color: Theme.of(context)
                                               .primaryColorLight),
                                     ),
                                   ],
                                 ),
                                 lesson.wasAbsent
                                     ? Text(
-                                  "Vous avez été absent lors de ce cours!",
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: absColorText),
-                                )
+                                        "Vous avez été absent lors de ce cours!",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: absColorText),
+                                      )
                                     : Text(
-                                  lesson.lessonState ==
-                                      LessonState.UPCOMING
-                                      ? lesson.daysRemeaning > 0
-                                      ? "Dans ${lesson.daysRemeaning} jours"
-                                      : lesson.hoursRemeaning > 0
-                                      ? "${lesson.hoursRemeaning}h"
-                                      " et ${lesson.minRemeaning}min"
-                                      "\nrestantes avant le début du cours"
-                                      : "${lesson.minRemeaning} minutes"
-                                      "\nrestantes avant le début du cours"
-                                      : lesson.lessonState ==
-                                      LessonState.CURRENT
-                                      ? "En cours"
-                                      : "Ce cours est passé",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 12),
-                                ),
+                                        lesson.lessonState ==
+                                                LessonState.UPCOMING
+                                            ? lesson.daysRemeaning > 0
+                                                ? "Dans ${lesson.daysRemeaning} jours"
+                                                : lesson.hoursRemeaning > 0
+                                                    ? "${lesson.hoursRemeaning}h"
+                                                        " et ${lesson.minRemeaning}min"
+                                                        "\nrestantes avant le début du cours"
+                                                    : "${lesson.minRemeaning} minutes"
+                                                        "\nrestantes avant le début du cours"
+                                            : lesson.lessonState ==
+                                                    LessonState.CURRENT
+                                                ? "En cours"
+                                                : "Ce cours est passé",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(fontSize: 12),
+                                      ),
                               ])),
                     ),
                     Padding(
@@ -830,9 +724,7 @@ class _HomePageState extends State<HomePage> {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.padded,
-        primary: Theme
-            .of(context)
-            .primaryColorDark,
+        primary: Theme.of(context).primaryColorDark,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(100))),
       ),
@@ -845,9 +737,7 @@ class _HomePageState extends State<HomePage> {
               height: 30,
               child: Icon(
                 Icons.calendar_today_rounded,
-                color: Theme
-                    .of(context)
-                    .primaryColorLight,
+                color: Theme.of(context).primaryColorLight,
               ),
             ),
             Container(width: 10),
@@ -856,9 +746,7 @@ class _HomePageState extends State<HomePage> {
                 "Ouvrir dans le calendrier",
                 maxLines: 2,
                 style: TextStyle(
-                    color: Theme
-                        .of(context)
-                        .primaryColorLight,
+                    color: Theme.of(context).primaryColorLight,
                     fontSize: 13,
                     fontWeight: FontWeight.w400),
               ),
@@ -871,8 +759,7 @@ class _HomePageState extends State<HomePage> {
         DateTime date = await Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) =>
-                    CalendarPage(
+                builder: (context) => CalendarPage(
                       configuration: widget.configuration,
                       focusDate: selectedDay,
                     )));
@@ -899,9 +786,7 @@ class _HomePageState extends State<HomePage> {
           Text(
             "Teams",
             style: TextStyle(
-                color: Theme
-                    .of(context)
-                    .primaryColor,
+                color: Theme.of(context).primaryColor,
                 fontWeight: FontWeight.bold),
           ),
         ],
@@ -917,9 +802,7 @@ class _HomePageState extends State<HomePage> {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.padded,
-        primary: Theme
-            .of(context)
-            .primaryColorDark,
+        primary: Theme.of(context).primaryColorDark,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(100))),
       ),
@@ -932,9 +815,7 @@ class _HomePageState extends State<HomePage> {
               height: 30,
               child: Icon(
                 Icons.alarm,
-                color: Theme
-                    .of(context)
-                    .primaryColorLight,
+                color: Theme.of(context).primaryColorLight,
               ),
             ),
             Container(width: 10),
@@ -943,9 +824,7 @@ class _HomePageState extends State<HomePage> {
                 "Génerer une alarme pour ce cours",
                 maxLines: 2,
                 style: TextStyle(
-                    color: Theme
-                        .of(context)
-                        .primaryColorLight,
+                    color: Theme.of(context).primaryColorLight,
                     fontSize: 13,
                     fontWeight: FontWeight.w400),
               ),
@@ -971,9 +850,7 @@ class _HomePageState extends State<HomePage> {
     return ElevatedButton(
         style: ElevatedButton.styleFrom(
           tapTargetSize: MaterialTapTargetSize.padded,
-          primary: Theme
-              .of(context)
-              .primaryColorDark,
+          primary: Theme.of(context).primaryColorDark,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(100))),
         ),
@@ -986,9 +863,7 @@ class _HomePageState extends State<HomePage> {
                 height: 30,
                 child: Icon(
                   Icons.mail_outline,
-                  color: Theme
-                      .of(context)
-                      .primaryColorLight,
+                  color: Theme.of(context).primaryColorLight,
                 ),
               ),
               Container(width: 10),
@@ -997,9 +872,7 @@ class _HomePageState extends State<HomePage> {
                   "Justifier cette absence",
                   maxLines: 2,
                   style: TextStyle(
-                      color: Theme
-                          .of(context)
-                          .primaryColorLight,
+                      color: Theme.of(context).primaryColorLight,
                       fontSize: 13,
                       fontWeight: FontWeight.w400),
                 ),
@@ -1018,31 +891,18 @@ class _HomePageState extends State<HomePage> {
       startDate: selectedDay.subtract(Duration(days: 300)),
       endDate: selectedDay.add(Duration(days: 300)),
       selectedDate: selectedDay,
-      selectedDateColor: Theme
-          .of(context)
-          .primaryColor,
-      selectedDateTextColor: Theme
-          .of(context)
-          .primaryColorLight,
-      daysTextColor: Theme
-          .of(context)
-          .primaryColor,
-      monthYearTextColor: Theme
-          .of(context)
-          .primaryColor,
+      selectedDateColor: Theme.of(context).primaryColor,
+      selectedDateTextColor: Theme.of(context).primaryColorLight,
+      daysTextColor: Theme.of(context).primaryColor,
+      monthYearTextColor: Theme.of(context).primaryColor,
       onDateSelected: (date) async {
         selectedDay = date;
         listenDay();
       },
       addSwipeGesture: true,
-      iconColor: Theme
-          .of(context)
-          .primaryColorLight,
+      iconColor: Theme.of(context).primaryColorLight,
       containerDecoration:
-      BoxDecoration(color: Theme
-          .of(context)
-          .primaryColor
-          .withOpacity(0.3)),
+          BoxDecoration(color: Theme.of(context).primaryColor.withOpacity(0.3)),
       dayLabels: ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
       monthLabels: [
         "Janvier",
@@ -1084,9 +944,7 @@ class _HomePageState extends State<HomePage> {
       return Opacity(
         opacity: 0.7,
         child: Container(
-          color: Theme
-              .of(context)
-              .primaryColor,
+          color: Theme.of(context).primaryColor,
         ),
       );
     else
@@ -1098,9 +956,7 @@ class _HomePageState extends State<HomePage> {
       return Center(
         child: Text(
           "Pas de cours ce jour-ci.",
-          style: TextStyle(color: Theme
-              .of(context)
-              .primaryColorLight),
+          style: TextStyle(color: Theme.of(context).primaryColorLight),
         ),
       );
     else
@@ -1112,16 +968,25 @@ class _HomePageState extends State<HomePage> {
         .configuration.localMoorDatabase
         .getAllCalendarDays(widget.configuration.logIn);
 
-    int indexOfCurrentDay = calendarDays.indexWhere((calendarDay) =>
-        isSameDay(calendarDay.date, selectedDay));
+    int indexOfCurrentDay = calendarDays
+        .indexWhere((calendarDay) => isSameDay(calendarDay.date, selectedDay));
 
-    for (int i = indexOfCurrentDay + 1; calendarDays[i].dayState ==
-        DayState.holiday && i < calendarDays.length - 1; i++){
-      await Future.delayed(Duration(milliseconds: 100));
+    if (calendarDays[indexOfCurrentDay + 1].dayState != DayState.holiday) {
       setState(() {
         isLoading = true;
-        selectedDay = calendarDays[i + 1].date;
+        selectedDay = calendarDays[indexOfCurrentDay + 1].date;
       });
+    } else {
+      for (int i = indexOfCurrentDay + 1;
+          calendarDays[i].dayState == DayState.holiday &&
+              i < calendarDays.length - 1;
+          i++) {
+        await Future.delayed(Duration(milliseconds: 100));
+        setState(() {
+          isLoading = true;
+          selectedDay = calendarDays[i + 1].date;
+        });
+      }
     }
 
     listenDay();
