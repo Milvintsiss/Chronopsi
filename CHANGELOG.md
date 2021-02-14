@@ -1,6 +1,8 @@
 ## [1.4.2] - 12/02/2021
 
-* 
+* fix iOS mail links
+* next lesson function algorithm improved
+* windows app description updated
 
 ## [1.4.1] - 08/02/2021
 
