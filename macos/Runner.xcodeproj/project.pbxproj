@@ -432,7 +432,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 17;
 				DEVELOPMENT_TEAM = KF4HFQADS2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -443,7 +443,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.milvintsiss.chronopsi1;
 				PRODUCT_NAME = Chronopsi;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -568,7 +568,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 17;
 				DEVELOPMENT_TEAM = KF4HFQADS2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -579,7 +579,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.milvintsiss.chronopsi1;
 				PRODUCT_NAME = Chronopsi;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -598,7 +598,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 17;
 				DEVELOPMENT_TEAM = KF4HFQADS2;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -609,7 +609,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.milvintsiss.chronopsi1;
 				PRODUCT_NAME = Chronopsi;
 				PROVISIONING_PROFILE_SPECIFIER = "";
