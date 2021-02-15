@@ -1,14 +1,11 @@
 import 'dart:io';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:chronopsi/moor_database.dart';
 import 'package:flutter/material.dart';
 import 'package:chronopsi/library/alarm_generation.dart';
 import 'package:chronopsi/library/configuration.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
-import 'package:moor/moor.dart';
 import 'package:number_selection/number_selection.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../root_page.dart';
 
