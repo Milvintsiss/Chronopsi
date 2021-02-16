@@ -4,7 +4,8 @@ version: 1.4.2
 summary: Emploi du temps destiné aux étudiants EPSI/WIS.
 description: >
   Emploi du temps destiné aux étudiants EPSI/WIS. Permet la consultation de votre EDT jour par jour
-  en un click. \n
+  en un click.
+
   Permet aussi la consultation de votre calendrier scolaire et de vos notes.
 confinement: strict
 base: core18
