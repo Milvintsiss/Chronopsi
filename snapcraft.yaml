@@ -1,0 +1,35 @@
+name: chronopsi
+title: Chronopsi
+version: 1.4.2
+summary: Emploi du temps destiné aux étudiants EPSI/WIS.
+description: >
+  Emploi du temps destiné aux étudiants EPSI/WIS. Permet la consultation de votre EDT jour par jour
+  en un click. \n
+  Permet aussi la consultation de votre calendrier scolaire et de vos notes.
+confinement: strict
+base: core18
+grade: stable
+icon: snap/gui/logo.png
+
+slots:
+  dbus-chronopsi:
+    interface: dbus
+    bus: session
+    name: com.milvintsiss.chronopsi
+
+apps:
+  chronopsi:
+    command: chronopsi
+    extensions: [flutter-dev] # Where "master" defines which Flutter channel to use for the build
+    plugs:
+      - network
+      - desktop
+    slots:
+      - dbus-chronopsi
+    desktop: snap/gui/chronopsi.desktop
+
+parts:
+  chronopsi:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart # The main entry-point file of the application

@@ -1,16 +1,12 @@
 import 'dart:io';
 
 import 'package:chronopsi/library/mailUtils.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/rendering.dart';
 
 import 'configuration.dart';
 
 const linkBuyMeACoffee = 'https://www.buymeacoffee.com/Milvintsiss';
-const contactMail = 'contact@milvintsiss.com';
 const linkGithub = 'https://github.com/Milvintsiss/Chronopsi';
 const linkPlayStore =
     'https://play.google.com/store/apps/details?id=com.milvintsiss.chronopsi';
@@ -56,7 +52,7 @@ void aboutDialog(BuildContext context, Configuration configuration) {
                     style:
                         TextStyle(color: Theme.of(context).primaryColorLight)),
                 ClickableTextSpan(
-                  text: "contact@milvintsiss.com",
+                  text: contactMail,
                   onTap: () {
                     MailLauncher mailLauncher = MailLauncher(
                         emailAddress: contactMail,
@@ -105,22 +101,4 @@ void aboutDialog(BuildContext context, Configuration configuration) {
   );
 }
 
-class ClickableTextSpan extends WidgetSpan {
-  ClickableTextSpan({
-    @required String text,
-    @required Function onTap,
-    TextStyle style,
-  }) : super(
-            child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: Text.rich(TextSpan(
-              text: text,
-              style: style ??
-                  TextStyle(
-                      color: Colors.blue,
-                      fontSize: 14,
-                      fontStyle: FontStyle.italic,
-                      decoration: TextDecoration.underline),
-              recognizer: TapGestureRecognizer()..onTap = onTap)),
-        ));
-}
+

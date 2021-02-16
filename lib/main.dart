@@ -9,6 +9,9 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3/open.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'library/mailUtils.dart';
 
 Future<void> main() async {
   bool isSQLLoaded = true;
@@ -41,7 +44,7 @@ DynamicLibrary _openOnLinux() {
   final script = File(Platform.script.toFilePath());
   print('Script PATH: ${script.path}');
   final libraryNextToScript = kDebugMode
-      ? File('${script.parent.path}/libsqlite3.so')
+      ? File('${script.parent.path}/libslite3.so')
       : File('${script.parent.path}/lib/libsqlite3.so');
   print('Library PATH: ${libraryNextToScript.path}');
   DynamicLibrary dynamicLibrary;
@@ -81,23 +84,38 @@ class MyApp extends StatelessWidget {
               theme: lightTheme,
               darkTheme: darkTheme,
               debugShowCheckedModeBanner: false,
-              home: isSQLLoaded ?
-                RootPage(
-                  adaptiveThemeMode: _adaptiveThemeMode,
-                ) :
-              failedLoadingSQLite(),
+              home: isSQLLoaded
+                  ? RootPage(
+                      adaptiveThemeMode: _adaptiveThemeMode,
+                    )
+                  : failedLoadingSQLite(),
             ));
   }
 
   Widget failedLoadingSQLite() {
     return Scaffold(
-      body: Text("Le chargement de la librarie SQLite a échoué, "
-          "si vous executez Chronopsi depuis un Linux "
-          "tentez d'installer la librairie avec la commande "
-          "\"apt install libsqlite3-dev\" "
-          "et redémarrez l'application. "
-          "Si cela ne fonctionne toujours pas "
-          "veuillez me contacter a l'adresse milvintsiss@gmail.com ."),
-    );
+        body: RichText(
+            text: TextSpan(children: [
+      TextSpan(
+          text: "Le chargement de la librarie SQLite a échoué, "
+              "si vous executez Chronopsi depuis un Linux "
+              "tentez d'installer la librairie avec la commande "
+              "\"apt install libsqlite3-dev\" "
+              "et redémarrez l'application. "
+              "Si cela ne fonctionne toujours pas "
+              "veuillez me contacter a l'adresse ", style: TextStyle(color: Colors.red)),
+      ClickableTextSpan(
+        text: "milvintsiss@gmail.com",
+        onTap: () {
+          MailLauncher mailLauncher = MailLauncher(
+              emailAddress: contactMail,
+              subject: "Chronopsi",
+              body: "OS: ${Platform.operatingSystem}\n"
+                  "Version: ${Platform.operatingSystemVersion}");
+          print(mailLauncher);
+          launch(mailLauncher.toString());
+        },
+      )
+    ])));
   }
 }
