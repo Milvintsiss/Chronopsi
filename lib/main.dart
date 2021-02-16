@@ -44,7 +44,7 @@ DynamicLibrary _openOnLinux() {
   final script = File(Platform.script.toFilePath());
   print('Script PATH: ${script.path}');
   final libraryNextToScript = kDebugMode
-      ? File('${script.parent.path}/libslite3.so')
+      ? File('${script.parent.path}/libsqlite3.so')
       : File('${script.parent.path}/lib/libsqlite3.so');
   print('Library PATH: ${libraryNextToScript.path}');
   DynamicLibrary dynamicLibrary;
