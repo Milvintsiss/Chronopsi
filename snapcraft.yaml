@@ -27,7 +27,6 @@ apps:
       - desktop
     slots:
       - dbus-chronopsi
-    desktop: snap/gui/chronopsi.desktop
 
 parts:
   chronopsi:

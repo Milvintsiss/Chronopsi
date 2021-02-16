@@ -13,7 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'library/mailUtils.dart';
 
 const sqlite3_emplacement_windows = 'sqlite3_libraries/windows/sqlite3.dll';
-const sqlite3_emplacement_linux = '/sqlite3_libraries/linux/libsqlite3.so';
+const sqlite3_emplacement_linux = 'sqlite3_libraries/linux/libsqlite3.so';
 
 Future<void> main() async {
   bool isSQLLoaded = true;
