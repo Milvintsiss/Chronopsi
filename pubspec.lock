@@ -755,13 +755,22 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.0+1"
+  sqlite3_library_linux:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "6cad8c676b4dfd734636472aa9abb992510f3035"
+      url: "https://github.com/Milvintsiss/sqlite3_library_linux"
+    source: git
+    version: "1.0.0"
   sqlite3_library_windows:
     dependency: "direct main"
     description:
       name: sqlite3_library_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.0+1"
   sqlparser:
     dependency: transitive
     description:

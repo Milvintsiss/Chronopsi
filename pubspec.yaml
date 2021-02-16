@@ -30,9 +30,12 @@ dependencies:
   moor: ^3.4.0
   sqlite3_flutter_libs: ^0.4.0+1
   path_provider: ^1.6.27
-  sqlite3_library_windows: ^1.0.0
+  sqlite3_library_windows: ^1.0.0+1
     #git: https://github.com/Milvintsiss/sqlite3_library_windows
     #path: ../sqlite3_library_windows
+  sqlite3_library_linux: #^1.0.0
+    git: https://github.com/Milvintsiss/sqlite3_library_linux
+    #path: ../../AndroidStudioProjects/sqlite3_library_linux
 
   #widgets
   table_calendar: ^2.3.3
@@ -88,7 +91,6 @@ flutter:
     - assets/appLogo/logo.png
     - assets/teamsLogo.png
     - assets/appLogo/logo_avec_padding.png
-    - sqlite3_libraries/linux/libsqlite3.so
 
 
 

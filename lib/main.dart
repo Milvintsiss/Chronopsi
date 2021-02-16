@@ -4,16 +4,14 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:chronopsi/root_page.dart';
 import 'package:chronopsi/theme.dart';
 
-import 'dart:ffi';
 import 'dart:io';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3/open.dart';
+import 'package:sqlite3_library_linux/sqlite3_library_linux.dart';
 import 'package:sqlite3_library_windows/sqlite3_library_windows.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'library/mailUtils.dart';
-
-const sqlite3_emplacement_linux = 'sqlite3_libraries/linux/libsqlite3.so';
 
 Future<void> main() async {
   bool isSQLLoaded = true;
@@ -25,7 +23,7 @@ Future<void> main() async {
 
   ////init moor
   print("Get SQLite from package");
-  open.overrideFor(OperatingSystem.linux, _openOnLinux);
+  open.overrideFor(OperatingSystem.linux, openSQLiteOnLinux);
   open.overrideFor(OperatingSystem.windows, openSQLiteOnWindows);
   print("Open SQLite in memory");
 
@@ -44,19 +42,6 @@ Future<void> main() async {
   final AdaptiveThemeMode savedThemeMode = await AdaptiveTheme.getThemeMode();
 
   runApp(MyApp(savedThemeMode, isSQLLoaded));
-}
-
-DynamicLibrary _openOnLinux() {
-  final library = File(sqlite3_emplacement_linux);
-  print('Library PATH: ${library.path}');
-  DynamicLibrary dynamicLibrary;
-  try {
-    dynamicLibrary = DynamicLibrary.open(library.path);
-  } catch (e) {
-    print(e);
-    dynamicLibrary = DynamicLibrary.open('libsqlite3.so');
-  }
-  return dynamicLibrary;
 }
 
 class MyApp extends StatelessWidget {
