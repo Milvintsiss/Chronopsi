@@ -8,11 +8,11 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3/open.dart';
+import 'package:sqlite3_library_windows/sqlite3_library_windows.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'library/mailUtils.dart';
 
-const sqlite3_emplacement_windows = 'sqlite3_libraries/windows/sqlite3.dll';
 const sqlite3_emplacement_linux = 'sqlite3_libraries/linux/libsqlite3.so';
 
 Future<void> main() async {
@@ -26,7 +26,7 @@ Future<void> main() async {
   ////init moor
   print("Get SQLite from package");
   open.overrideFor(OperatingSystem.linux, _openOnLinux);
-  open.overrideFor(OperatingSystem.windows, _openOnWindows);
+  open.overrideFor(OperatingSystem.windows, openSQLiteOnWindows);
   print("Open SQLite in memory");
 
   try {
@@ -57,12 +57,6 @@ DynamicLibrary _openOnLinux() {
     dynamicLibrary = DynamicLibrary.open('libsqlite3.so');
   }
   return dynamicLibrary;
-}
-
-DynamicLibrary _openOnWindows() {
-  final library = File(sqlite3_emplacement_windows);
-  print('Library PATH: ${library.path}');
-  return DynamicLibrary.open(library.path);
 }
 
 class MyApp extends StatelessWidget {
