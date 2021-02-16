@@ -1,5 +1,4 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:chronopsi/root_page.dart';
@@ -13,9 +12,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'library/mailUtils.dart';
 
+const sqlite3_emplacement_windows = 'sqlite3_libraries/windows/sqlite3.dll';
+const sqlite3_emplacement_linux = '/sqlite3_libraries/linux/libsqlite3.so';
+
 Future<void> main() async {
   bool isSQLLoaded = true;
   WidgetsFlutterBinding.ensureInitialized();
+
+  print("OS: ${Platform.operatingSystem}");
+  print("Version: ${Platform.operatingSystemVersion}");
+  print('Script PATH: ${Platform.script.toFilePath()}');
 
   ////init moor
   print("Get SQLite from package");
@@ -41,15 +47,11 @@ Future<void> main() async {
 }
 
 DynamicLibrary _openOnLinux() {
-  final script = File(Platform.script.toFilePath());
-  print('Script PATH: ${script.path}');
-  final libraryNextToScript = kDebugMode
-      ? File('${script.parent.path}/libsqlite3.so')
-      : File('${script.parent.path}/lib/libsqlite3.so');
-  print('Library PATH: ${libraryNextToScript.path}');
+  final library = File(sqlite3_emplacement_linux);
+  print('Library PATH: ${library.path}');
   DynamicLibrary dynamicLibrary;
   try {
-    dynamicLibrary = DynamicLibrary.open(libraryNextToScript.path);
+    dynamicLibrary = DynamicLibrary.open(library.path);
   } catch (e) {
     print(e);
     dynamicLibrary = DynamicLibrary.open('libsqlite3.so');
@@ -58,11 +60,9 @@ DynamicLibrary _openOnLinux() {
 }
 
 DynamicLibrary _openOnWindows() {
-  final script = File(Platform.script.toFilePath());
-  print('Script PATH: ${script.path}');
-  final libraryNextToScript = File('${script.parent.path}\\sqlite3.dll');
-  print('Library PATH: ${libraryNextToScript.path}');
-  return DynamicLibrary.open(libraryNextToScript.path);
+  final library = File(sqlite3_emplacement_windows);
+  print('Library PATH: ${library.path}');
+  return DynamicLibrary.open(library.path);
 }
 
 class MyApp extends StatelessWidget {
@@ -103,7 +103,8 @@ class MyApp extends StatelessWidget {
               "\"apt install libsqlite3-dev\" "
               "et redémarrez l'application. "
               "Si cela ne fonctionne toujours pas "
-              "veuillez me contacter a l'adresse ", style: TextStyle(color: Colors.red)),
+              "veuillez me contacter a l'adresse ",
+          style: TextStyle(color: Colors.red)),
       ClickableTextSpan(
         text: "milvintsiss@gmail.com",
         onTap: () {

@@ -85,6 +85,8 @@ flutter:
     - assets/appLogo/logo.png
     - assets/teamsLogo.png
     - assets/appLogo/logo_avec_padding.png
+    - sqlite3_libraries/windows/sqlite3.dll
+    - sqlite3_libraries/linux/libsqlite3.so
 
 
 
