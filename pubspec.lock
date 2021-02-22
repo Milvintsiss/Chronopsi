@@ -247,7 +247,7 @@ packages:
       name: expansion_tile_card
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "2.0.0"
   external_app_launcher:
     dependency: "direct main"
     description:
@@ -460,7 +460,7 @@ packages:
       name: msix
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.12"
+    version: "0.1.13"
   node_interop:
     dependency: transitive
     description:
@@ -497,7 +497,7 @@ packages:
       name: package_info_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.3"
+    version: "0.6.4"
   package_info_plus_linux:
     dependency: transitive
     description:
@@ -758,11 +758,9 @@ packages:
   sqlite3_library_linux:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "6cad8c676b4dfd734636472aa9abb992510f3035"
-      url: "https://github.com/Milvintsiss/sqlite3_library_linux"
-    source: git
+      name: sqlite3_library_linux
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "1.0.0"
   sqlite3_library_windows:
     dependency: "direct main"
@@ -770,7 +768,7 @@ packages:
       name: sqlite3_library_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0+1"
+    version: "1.0.1"
   sqlparser:
     dependency: transitive
     description:
@@ -940,5 +938,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.12.0-0.0 <3.0.0"
-  flutter: ">=1.22.2"
+  dart: ">=2.12.0-259.9.beta <3.0.0"
+  flutter: ">=1.26.0-0"

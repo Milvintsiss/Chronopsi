@@ -196,7 +196,8 @@ class _LogInPageState extends State<LogInPage> {
               style: TextStyle(color: Colors.red),
             ),
           ));
-          if (await Vibrate.canVibrate) Vibrate.feedback(FeedbackType.warning);
+          if ((Platform.isAndroid || Platform.isIOS) &&
+              await Vibrate.canVibrate) Vibrate.feedback(FeedbackType.warning);
           _formKey.currentState.reset();
           setState(() => isLoading = false);
           return null;
@@ -223,7 +224,8 @@ class _LogInPageState extends State<LogInPage> {
             style: TextStyle(color: Colors.red),
           ),
         ));
-        if (await Vibrate.canVibrate) Vibrate.feedback(FeedbackType.warning);
+        if ((Platform.isAndroid || Platform.isIOS) && await Vibrate.canVibrate)
+          Vibrate.feedback(FeedbackType.warning);
       }
     }
   }

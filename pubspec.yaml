@@ -30,16 +30,16 @@ dependencies:
   moor: ^3.4.0
   sqlite3_flutter_libs: ^0.4.0+1
   path_provider: ^1.6.27
-  sqlite3_library_windows: ^1.0.0+1
+  sqlite3_library_windows: ^1.0.1
     #git: https://github.com/Milvintsiss/sqlite3_library_windows
     #path: ../sqlite3_library_windows
-  sqlite3_library_linux: #^1.0.0
-    git: https://github.com/Milvintsiss/sqlite3_library_linux
-    #path: ../../AndroidStudioProjects/sqlite3_library_linux
+  sqlite3_library_linux: ^1.0.0
+    #git: https://github.com/Milvintsiss/sqlite3_library_linux
+    #path: ../sqlite3_library_linux
 
   #widgets
   table_calendar: ^2.3.3
-  expansion_tile_card: ^1.1.0
+  expansion_tile_card: ^2.0.0
   calendar_strip:
     git: https://github.com/Milvintsiss/flutter_calendar_strip
     #path: ../flutter_calendar_strip
@@ -54,7 +54,7 @@ dependencies:
   intl: ^0.17.0
 
   #others
-  package_info_plus: ^0.6.3
+  package_info_plus: ^0.6.4
   url_launcher: ^5.7.10
   external_app_launcher: ^0.0.1
   android_intent: ^0.3.7+7
@@ -71,7 +71,7 @@ dev_dependencies:
   moor_generator: ^3.4.1
   build_runner: ^1.11.1
 
-  msix: ^0.1.12
+  msix: ^0.1.13
 
 flutter_icons:
   android: true
