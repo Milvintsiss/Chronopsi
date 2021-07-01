@@ -1,14 +1,15 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:chronopsi/root_page.dart';
 import 'package:chronopsi/theme.dart';
 
-import 'dart:io';
+import 'dart:io' show Platform;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3/open.dart';
-import 'package:sqlite3_library_linux/sqlite3_library_linux.dart';
 import 'package:sqlite3_library_windows/sqlite3_library_windows.dart';
+import 'package:sqlite3_library_linux/sqlite3_library_linux.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'library/mailUtils.dart';
@@ -17,22 +18,25 @@ Future<void> main() async {
   bool isSQLLoaded = true;
   WidgetsFlutterBinding.ensureInitialized();
 
-  print("OS: ${Platform.operatingSystem}");
-  print("Version: ${Platform.operatingSystemVersion}");
-  print('Script PATH: ${Platform.script.toFilePath()}');
+  print('OS: ${Platform.operatingSystem}');
+  print('Version: ${Platform.operatingSystemVersion}');
+  print('Environment: ${Platform.environment}');
+  print('Dart version: ${Platform.version}');
 
   ////init moor
-  print("Get SQLite from package");
-  open.overrideFor(OperatingSystem.linux, openSQLiteOnLinux);
-  open.overrideFor(OperatingSystem.windows, openSQLiteOnWindows);
-  print("Open SQLite in memory");
+  if(!kIsWeb) {
+    print("Get SQLite from package");
+    open.overrideFor(OperatingSystem.linux, openSQLiteOnLinux);
+    open.overrideFor(OperatingSystem.windows, openSQLiteOnWindows);
+    print("Open SQLite in memory");
 
-  try {
-    final db = sqlite3.openInMemory();
-    db.dispose();
-  } catch (e) {
-    print(e);
-    isSQLLoaded = false;
+    try {
+      final db = sqlite3.openInMemory();
+      db.dispose();
+    } catch (e) {
+      print(e);
+      isSQLLoaded = false;
+    }
   }
 
   //init locale language

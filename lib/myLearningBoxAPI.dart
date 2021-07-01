@@ -44,7 +44,8 @@ Future<List<Grade>> getGradesFromMyLearningBox(
           .getElementsByTagName('a')[0]
           .outerHtml
           .split('href="')[1]
-          .split('">')[0].replaceAll('&amp;', '&'),
+          .split('">')[0]
+          .replaceAll('&amp;', '&'),
     ));
   });
   return grades;
@@ -93,7 +94,9 @@ Future<bool> connectToMyLearningBox(
         }),
   );
 
-  if (res.headers.map['location'][0] == '$urlMyLearningBox/login/index.php') {
+  if (res.redirects.length == 0 ||
+      res.redirects.first.location.toString() ==
+          '$urlMyLearningBox/login/index.php') {
     print("Login or password is wrong");
     return false;
   }
@@ -103,7 +106,7 @@ Future<bool> connectToMyLearningBox(
   sessionId = getSessionIdFromResponseHeaders(responseHeaders);
   headers = addSessionIdToHeaders({}, sessionId);
 
-  String token = responseHeaders['location'].split('=')[1];
+  String token = res.redirects.first.location.toString().split('=')[1];
   print("User token: $token");
   print("SessionId: $sessionId");
 
@@ -119,8 +122,8 @@ Future<bool> connectToMyLearningBox(
 
   responseHeaders =
       convertMapOfStringAndListOfStringToMapOfStringAndString(res.headers.map);
-  if (responseHeaders.containsKey('location') &&
-      responseHeaders['location'] == '$urlMyLearningBox/my/') {
+  if (res.redirects.isNotEmpty &&
+      res.redirects.first.location.toString() == '$urlMyLearningBox/my/') {
     configuration.sharedPreferences.setString(tokenMyLearningBoxKey, token);
     configuration.sharedPreferences
         .setString(sessionIdMyLearningBoxKey, sessionId);
@@ -128,7 +131,7 @@ Future<bool> connectToMyLearningBox(
     return true;
   } else {
     print("An error as occurred");
-    return false;
+    return true;
   }
 }
 

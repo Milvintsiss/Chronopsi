@@ -1,8 +1,8 @@
 import 'package:android_intent/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_duration_picker/flutter_duration_picker.dart';
-import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:number_selection/number_selection.dart';
+import 'package:vibration/vibration.dart';
 
 import '../database.dart';
 import 'day.dart';
@@ -79,8 +79,8 @@ class AlarmGeneration {
                                   numberOfDaysToGenerate = newValue;
                                 },
                                 onOutOfConstraints: () async {
-                                  if (await Vibrate.canVibrate)
-                                    Vibrate.feedback(FeedbackType.heavy);
+                                  if (await Vibration.hasVibrator())
+                                    Vibration.vibrate();
                                 },
                               ),
                             ),

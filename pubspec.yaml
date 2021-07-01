@@ -15,30 +15,31 @@ dependencies:
 
   #icons
   cupertino_icons: ^1.0.2
-  material_design_icons_flutter: ^4.0.5855
-  flutter_boxicons: ^2.0.2
+  material_design_icons_flutter: ^5.0.5955-rc.1
+  flutter_boxicons:
+    git: https://github.com/Milvintsiss/flutter_boxicons
   eva_icons_flutter: ^2.0.1
 
   #http requests and parsing
-  http: ^0.12.2
-  dio: ^3.0.10
+  http: ^0.13.0
+  dio: ^4.0.0-beta6
   html: ^0.15.0
 
   #local storage
-  shared_preferences: ^0.5.12+4
-  sqflite: ^1.3.2+3
-  moor: ^3.4.0
+  shared_preferences: ^2.0.3
+  sqflite: ^2.0.0+1
+  moor: ^4.3.2
   sqlite3_flutter_libs: ^0.4.0+1
-  path_provider: ^1.6.27
-  sqlite3_library_windows: ^1.0.1
+  path_provider: ^2.0.1
+  sqlite3_library_windows: ^2.0.0
     #git: https://github.com/Milvintsiss/sqlite3_library_windows
     #path: ../sqlite3_library_windows
-  sqlite3_library_linux: ^1.0.0
+  sqlite3_library_linux: ^2.0.0
     #git: https://github.com/Milvintsiss/sqlite3_library_linux
     #path: ../sqlite3_library_linux
 
   #widgets
-  table_calendar: ^2.3.3
+  table_calendar: ^3.0.0-nullsafety.1
   expansion_tile_card: ^2.0.0
   calendar_strip:
     git: https://github.com/Milvintsiss/flutter_calendar_strip
@@ -54,31 +55,29 @@ dependencies:
   intl: ^0.17.0
 
   #others
-  package_info_plus: ^0.6.4
-  url_launcher: ^5.7.10
-  external_app_launcher: ^0.0.1
-  android_intent: ^0.3.7+7
-  adaptive_theme: ^1.1.0
-  flutter_vibrate: ^1.0.0
-  diacritic: ^0.1.1
+  package_info_plus: ^1.0.0
+  url_launcher: ^6.0.2
+  external_app_launcher:
+    git: https://github.com/Milvintsiss/external_app_launcher
+    #path: ../external_app_launcher
+  android_intent: ^2.0.0
+  adaptive_theme: ^2.0.0-nullsafety.1
+  vibration: 1.7.4-nullsafety.0
+  diacritic: ^0.1.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_launcher_icons: ^0.8.1
+  flutter_launcher_icons: ^0.9.0
 
-  moor_generator: ^3.4.1
-  build_runner: ^1.11.1
+  moor_generator: ^4.1.0
+  build_runner: ^1.11.5
 
-  msix: ^0.1.13
+  msix: ^0.2.1-nullsafety.0
 
-flutter_icons:
-  android: true
-  ios: true
-  image_path: "assets/appLogo/logo.png"
-  image_path_android: "assets/appLogo/logo.png"
-  image_path_ios: "assets/appLogo/logo.jpg"
+
+dependency_overrides:
 
 # The following section is specific to Flutter.
 flutter:
@@ -92,6 +91,14 @@ flutter:
     - assets/teamsLogo.png
     - assets/appLogo/logo_avec_padding.png
 
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/appLogo/logo.png"
+  image_path_android: "assets/appLogo/logo.png"
+  image_path_ios: "assets/appLogo/logo.jpg"
 
 
 msix_config:

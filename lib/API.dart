@@ -7,13 +7,22 @@ import 'library/calendarDay.dart';
 import 'library/day.dart';
 import 'library/configuration.dart';
 
-const String urlWigor = 'http://edtmobilite.wigorservices.net/WebPsDyn.aspx';
+const String wigorDomain = 'edtmobiliteng.wigorservices.net';
 
-Future<bool> isLogInValid(String logIn, {String time = "8:00"}) async {
+const String wigorPath = '/WebPsDyn.aspx';
+
+Future<bool> isLogInValid(String logIn) async {
   bool isLogInValid = true;
   String date = convertDateTimeToMMJJAAAAString(DateTime.now());
-  final res = await http
-      .get("$urlWigor?Action=posETUD&serverid=h&tel=$logIn&date=$date%20$time");
+
+  final Uri uri = Uri.https(wigorDomain, wigorPath, {
+    'Action': 'posETUD',
+    'serverid': 'h',
+    'tel': logIn,
+    'date': date,
+  });
+  print(uri);
+  final res = await http.get(uri);
 
   Document document = p.parse(res.body);
   if (document.getElementById('Msg') != null &&
@@ -24,11 +33,18 @@ Future<bool> isLogInValid(String logIn, {String time = "8:00"}) async {
   return isLogInValid;
 }
 
-Future<Day> getDayFromAPI(Configuration configuration, DateTime dateTime,
-    {String time = "8:00"}) async {
+Future<Day> getDayFromAPI(
+    Configuration configuration, DateTime dateTime) async {
   String date = convertDateTimeToMMJJAAAAString(dateTime);
-  final res = await http.get(
-      "$urlWigor?Action=posETUD&serverid=h&tel=${configuration.logIn}&date=$date%20$time");
+
+  final Uri uri = Uri.https(wigorDomain, wigorPath, {
+    'Action': 'posETUD',
+    'serverid': 'h',
+    'tel': configuration.logIn,
+    'date': date,
+  });
+  print(uri);
+  final res = await http.get(uri);
 
   List<Lesson> lessons = [];
   var document = p.parse(res.body);
@@ -52,12 +68,20 @@ Future<Day> getDayFromAPI(Configuration configuration, DateTime dateTime,
 }
 
 ///This method didn't return any room for lessons for the moment, should not be used
-Future<List<Day>> getWeekFromAPI(Configuration configuration, DateTime dateTime,
-    {String time = "8:00"}) async {
+Future<List<Day>> getWeekFromAPI(
+    Configuration configuration, DateTime dateTime) async {
   dateTime = convertDateTimeToDateTimeWithYearMonthDayOnly(dateTime);
   String date = convertDateTimeToMMJJAAAAString(dateTime);
-  final res = await http.get(
-      "$urlWigor?Action=posETUDSEM&serverid=h&tel=${configuration.logIn}&date=$date%20$time");
+
+  final Uri uri = Uri.https(wigorDomain, wigorPath, {
+    'Action': 'posETUDSEM',
+    'serverid': 'h',
+    'tel': configuration.logIn,
+    'date': date,
+  });
+  print(uri);
+  final res = await http.get(uri);
+
   var document = p.parse(res.body);
   List<Lesson> lessons = [];
   List<int> lessonsDayIndex = [];
@@ -106,15 +130,13 @@ Future<List<Day>> getWeekFromAPI(Configuration configuration, DateTime dateTime,
 
 Future<Day> getDayFromBeecome(Configuration configuration, DateTime dateTime,
     {String time = "8:00"}) async {
-  List<Day> daysOfWeek =
-      await getWeekFromBeecome(configuration, dateTime, time: time);
+  List<Day> daysOfWeek = await getWeekFromBeecome(configuration, dateTime);
   Day day = daysOfWeek.firstWhere((Day day) => isSameDay(day.date, dateTime));
   return day;
 }
 
 Future<List<Day>> getWeekFromBeecome(
-    Configuration configuration, DateTime dateTime,
-    {String time = "8:00"}) async {
+    Configuration configuration, DateTime dateTime) async {
   String date = convertDateTimeToMMJJAAAAString(dateTime);
 
   var res;
@@ -123,8 +145,15 @@ Future<List<Day>> getWeekFromBeecome(
       res.statusCode == 302 ||
       res.isRedirect ||
       saveCalendar(document, configuration).length == 0) {
-    res = await http.get(
-        "$urlWigor?Action=posEDTBEECOME&serverid=C&tel=${configuration.logIn}&date=$date%20$time");
+    final Uri uri = Uri.https(wigorDomain, wigorPath, {
+      'Action': 'posEDTBEECOME',
+      'serverid': 'C',
+      'tel': configuration.logIn,
+      'date': date,
+    });
+    print(uri);
+    res = await http.get(uri);
+
     document = p.parse(res.body);
   }
 
@@ -207,16 +236,23 @@ Future<List<Day>> getWeekFromBeecome(
 }
 
 Future<List<CalendarDay>> getCalendarFromBeecome(
-    Configuration configuration, DateTime dateTime,
-    {String time = "8:00"}) async {
+    Configuration configuration, DateTime dateTime) async {
   dateTime = convertDateTimeToDateTimeWithYearMonthDayOnly(dateTime);
   String date = convertDateTimeToMMJJAAAAString(dateTime);
-  final res = await http.get(
-      "$urlWigor?Action=posEDTBEECOME&serverid=C&tel=${configuration.logIn}&date=$date%20$time");
+
+  final Uri uri = Uri.https(wigorDomain, wigorPath, {
+    'Action': 'posEDTBEECOME',
+    'serverid': 'C',
+    'tel': configuration.logIn,
+    'date': date,
+  });
+  print(uri);
+  final res = await http.get(uri);
+
   Document document = p.parse(res.body);
   if (res.statusCode == 302) {
     //prevent beecome bugs
-    getCalendarFromBeecome(configuration, dateTime, time: time);
+    getCalendarFromBeecome(configuration, dateTime);
     return null;
   } else
     return saveCalendar(document, configuration);

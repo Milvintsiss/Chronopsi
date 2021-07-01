@@ -104,15 +104,13 @@ class _GradesPageState extends State<GradesPage> {
         isLoading
             ? Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.5),
-          child: Center(
+          child: UnconstrainedBox(
             child: SizedBox(
               width: 15,
               height: 15,
-              child: Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).primaryColorLight),
-                ),
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).primaryColorLight),
               ),
             ),
           ),

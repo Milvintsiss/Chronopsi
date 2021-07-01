@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:chronopsi/library/configuration.dart';
 import 'package:chronopsi/myLearningBoxAPI.dart';
 import 'package:chronopsi/pages/home_page.dart';
+import 'package:vibration/vibration.dart';
 
 import '../API.dart';
 
@@ -197,7 +197,7 @@ class _LogInPageState extends State<LogInPage> {
             ),
           ));
           if ((Platform.isAndroid || Platform.isIOS) &&
-              await Vibrate.canVibrate) Vibrate.feedback(FeedbackType.warning);
+              await Vibration.hasVibrator()) Vibration.vibrate();
           _formKey.currentState.reset();
           setState(() => isLoading = false);
           return null;
@@ -206,8 +206,10 @@ class _LogInPageState extends State<LogInPage> {
         widget.configuration.password = password != '' ? password : null;
         widget.configuration.sharedPreferences
             .setString(logInKey, widget.configuration.logIn);
-        widget.configuration.sharedPreferences
-            .setString(passwordKey, widget.configuration.password);
+        widget.configuration.password != null
+            ? widget.configuration.sharedPreferences
+                .setString(passwordKey, widget.configuration.password)
+            : widget.configuration.sharedPreferences.remove(passwordKey);
 
         setState(() => isLoading = false);
         Navigator.push(
@@ -224,8 +226,8 @@ class _LogInPageState extends State<LogInPage> {
             style: TextStyle(color: Colors.red),
           ),
         ));
-        if ((Platform.isAndroid || Platform.isIOS) && await Vibrate.canVibrate)
-          Vibrate.feedback(FeedbackType.warning);
+        if ((Platform.isAndroid || Platform.isIOS) &&
+            await Vibration.hasVibrator()) Vibration.vibrate();
       }
     }
   }

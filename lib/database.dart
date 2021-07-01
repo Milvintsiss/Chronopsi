@@ -13,22 +13,21 @@ class Database {
   Future<Day> getDay(
       {@required Configuration configuration,
       @required DateTime dateTime,
-      bool fromAPI = false,
-      String time = "8:00"}) async {
+      bool fromAPI = false}) async {
     Day day;
     if (fromAPI) {
-        day = await getDayFromBeecome(configuration, dateTime, time: time);
+      day = await getDayFromBeecome(configuration, dateTime);
     } else {
-        day = await configuration.localMoorDatabase
-                .getDay(dateTime, configuration.logIn) ??
-            await getDayFromBeecome(configuration, dateTime, time: time);
+      day = await configuration.localMoorDatabase
+              .getDay(dateTime, configuration.logIn) ??
+          await getDayFromBeecome(configuration, dateTime);
     }
     //if the cache is too old, get new data from API
     if (day.rawLessons.length > 0 &&
         day.rawLessons[0].savingDate != null &&
         day.rawLessons[0].savingDate.difference(DateTime.now()).inDays >=
             configuration.cacheKeepingDuration) {
-        day = await getDayFromBeecome(configuration, dateTime, time: time);
+      day = await getDayFromBeecome(configuration, dateTime);
     }
     print("lessons: ${day.rawLessons.length}");
     return day;
@@ -37,16 +36,15 @@ class Database {
   Stream<Day> watchDay(
       {@required Configuration configuration,
       @required DateTime dateTime,
-      bool fromAPI = false,
-      String time = "8:00"}) async* {
-    getWeekFromBeecome(configuration, dateTime, time: time);
+      bool fromAPI = false}) async* {
+    getWeekFromBeecome(configuration, dateTime);
 
     Day preDay = await configuration.localMoorDatabase
         .getDay(dateTime, configuration.logIn);
     if (preDay == null ||
         preDay.rawLessons[0].savingDate.difference(DateTime.now()).inDays >=
             configuration.cacheKeepingDuration)
-      yield await getDayFromAPI(configuration, dateTime, time: time);
+      yield await getDayFromAPI(configuration, dateTime);
     else
       yield preDay;
 

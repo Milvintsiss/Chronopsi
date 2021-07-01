@@ -2,7 +2,8 @@ enum DayState {
   present,
   absent,
   holiday,
-  others
+  others,
+  undefined
 }
 
 class CalendarDay{

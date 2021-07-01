@@ -4,8 +4,8 @@ import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:chronopsi/library/alarm_generation.dart';
 import 'package:chronopsi/library/configuration.dart';
-import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:number_selection/number_selection.dart';
+import 'package:vibration/vibration.dart';
 
 import '../root_page.dart';
 
@@ -185,8 +185,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 withSpring: true,
                 onOutOfConstraints: () async {
                   if ((Platform.isAndroid || Platform.isIOS) &&
-                      await Vibrate.canVibrate)
-                    Vibrate.feedback(FeedbackType.heavy);
+                      await Vibration.hasVibrator()) Vibration.vibrate();
                 },
               ),
             )
