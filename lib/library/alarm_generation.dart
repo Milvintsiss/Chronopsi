@@ -109,14 +109,19 @@ class AlarmGeneration {
                     ),
                     Transform.scale(
                       scale: 0.6,
-                      child: DurationPicker(
-                          circleColor: Theme.of(context).primaryColorLight,
-                          duration: duration,
-                          onChange: (newValue) {
-                            setState(() {
-                              duration = newValue;
-                            });
-                          }),
+                      child: Theme(
+                        data: ThemeData(
+                          accentColor: Color(0xff495057),
+                        ),
+                        child: DurationPicker(
+                            circleColor: Theme.of(context).primaryColorLight,
+                            duration: duration,
+                            onChange: (newValue) {
+                              setState(() {
+                                duration = newValue;
+                              });
+                            }),
+                      ),
                     ),
                     Positioned(
                       left: 0,
