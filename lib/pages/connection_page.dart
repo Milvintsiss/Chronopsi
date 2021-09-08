@@ -206,10 +206,12 @@ class _LogInPageState extends State<LogInPage> {
         widget.configuration.password = password != '' ? password : null;
         widget.configuration.sharedPreferences
             .setString(logInKey, widget.configuration.logIn);
-        widget.configuration.password != null
-            ? widget.configuration.sharedPreferences
-                .setString(passwordKey, widget.configuration.password)
-            : widget.configuration.sharedPreferences.remove(passwordKey);
+        if (widget.configuration.password != null)
+          widget.configuration.sharedPreferences
+              .setString(passwordKey, widget.configuration.password);
+        else if (widget.configuration.sharedPreferences
+            .containsKey(passwordKey))
+          widget.configuration.sharedPreferences.remove(passwordKey);
 
         setState(() => isLoading = false);
         Navigator.push(
