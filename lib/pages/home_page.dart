@@ -97,11 +97,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColorDark,
-      appBar: appBar(),
-      drawer: drawer(),
-      body: body(),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColorDark,
+        appBar: appBar(),
+        drawer: drawer(),
+        body: body(),
+      ),
     );
   }
 
