@@ -90,7 +90,11 @@ Future<List<Day>> getWeekFromAPI(
         (element.querySelector('.TChdeb').innerHtml).split(' - ')[0],
         (element.querySelector('.TChdeb').innerHtml).split(' - ')[1],
         element.querySelector('.TCSalle').innerHtml.replaceFirst('Salle:', ''),
-        element.querySelector('.TCase').querySelector('.TCase').innerHtml,
+        element
+            .querySelector('.TCase')
+            .querySelector('.TCase')
+            .innerHtml
+            .replaceAll("&amp;", "&"),
         addCapsToName(
             element.querySelector('.TCProf').innerHtml.split('<br>')[1])));
     print((element.outerHtml.split('left:')[1]).split(';')[0]);
@@ -167,18 +171,19 @@ Future<List<Day>> getWeekFromBeecome(
         (element.querySelector('.TChdeb').innerHtml).split(' - ')[0],
         (element.querySelector('.TChdeb').innerHtml).split(' - ')[1],
         element.querySelector('.TCSalle').innerHtml.replaceFirst('Salle:', ''),
-        isTeacher
-            ? element
-                .querySelector('.TCase')
-                .innerHtml
-                .split('</td>')[0]
-                .split('>')
-                .last
-            : element
-                .querySelector('.TCase')
-                .innerHtml
-                .split('</div>')[2]
-                .split('</td>')[0],
+        (isTeacher
+                ? element
+                    .querySelector('.TCase')
+                    .innerHtml
+                    .split('</td>')[0]
+                    .split('>')
+                    .last
+                : element
+                    .querySelector('.TCase')
+                    .innerHtml
+                    .split('</div>')[2]
+                    .split('</td>')[0])
+            .replaceAll("&amp;", "&"),
         isTeacher
             ? element
                 .querySelector('.TCProf')
