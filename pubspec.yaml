@@ -47,9 +47,7 @@ dependencies:
   flutter_duration_picker:
     git: https://github.com/Milvintsiss/flutter_duration_picker
     #path: ../flutter_duration_picker
-  number_selection:
-    git: https://github.com/Milvintsiss/number_selection
-    #path: ../number_selection
+  number_selection: ^1.0.0
 
   #locale
   intl: ^0.17.0
