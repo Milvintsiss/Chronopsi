@@ -24,10 +24,11 @@ Future<List<Grade>> getGradesFromMyLearningBox(
           validateStatus: (status) {
             return status < 500;
           }));
+  print(res.requestOptions.uri);
 
   if (res.headers['location'] != null &&
       res.headers['location'][0] ==
-          'https://mylearningbox.reseau-cd.fr/login/index.php') {
+          '$urlMyLearningBox/login/index.php') {
     print('Not logged in.');
     await connectToMyLearningBox(
         configuration, configuration.logIn, configuration.password);
@@ -58,6 +59,7 @@ Future<bool> connectToMyLearningBox(
   //getting connection token and sessionID of connection
   var res = await dio.get('$urlMyLearningBox/login/index.php',
       options: Options(responseType: ResponseType.bytes));
+  print(res.requestOptions.uri);
 
   Document document = p.parse(res.data);
   String loginToken = document
@@ -79,7 +81,7 @@ Future<bool> connectToMyLearningBox(
   String sessionId = getSessionIdFromResponseHeaders(responseHeaders);
   Map<String, String> headers = addSessionIdToHeaders({}, sessionId);
   print("Login token: $loginToken");
-  print("SessionId: $sessionId");
+  print("IdentificationSessionId: $sessionId");
 
   //attempt to get the user token and the sessionID
   res = await dio.post(
@@ -93,20 +95,20 @@ Future<bool> connectToMyLearningBox(
           return status < 500;
         }),
   );
+  print(res.requestOptions.uri);
 
-  if (res.redirects.length == 0 ||
-      res.redirects.first.location.toString() ==
-          '$urlMyLearningBox/login/index.php') {
+  if (res.headers.map['location'][0] == '$urlMyLearningBox/login/index.php') {
     print("Login or password is wrong");
     return false;
   }
+  print("Valid login and password");
 
   responseHeaders =
       convertMapOfStringAndListOfStringToMapOfStringAndString(res.headers.map);
   sessionId = getSessionIdFromResponseHeaders(responseHeaders);
   headers = addSessionIdToHeaders({}, sessionId);
 
-  String token = res.redirects.first.location.toString().split('=')[1];
+  String token = responseHeaders['location'].split('=')[1];
   print("User token: $token");
   print("SessionId: $sessionId");
 
@@ -119,11 +121,12 @@ Future<bool> connectToMyLearningBox(
           validateStatus: (status) {
             return status < 500;
           }));
+  print(res.requestOptions.uri);
 
   responseHeaders =
       convertMapOfStringAndListOfStringToMapOfStringAndString(res.headers.map);
-  if (res.redirects.isNotEmpty &&
-      res.redirects.first.location.toString() == '$urlMyLearningBox/my/') {
+  if (responseHeaders.containsKey('location') &&
+      responseHeaders['location'] == '$urlMyLearningBox/my/') {
     configuration.sharedPreferences.setString(tokenMyLearningBoxKey, token);
     configuration.sharedPreferences
         .setString(sessionIdMyLearningBoxKey, sessionId);
@@ -131,7 +134,7 @@ Future<bool> connectToMyLearningBox(
     return true;
   } else {
     print("An error as occurred");
-    return true;
+    return false;
   }
 }
 
