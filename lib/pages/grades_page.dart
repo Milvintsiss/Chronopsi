@@ -155,17 +155,20 @@ class _GradesPageState extends State<GradesPage> {
   }
 
   Widget teacherListWidget(GradesByTeacher gradesByTeacher) {
-    return ExpansionTileCard(
-      key: cards[gradesByTeachers.indexOf(gradesByTeacher)],
-      baseColor: Theme.of(context).primaryColor,
-      expandedColor: Theme.of(context).primaryColor.withOpacity(0.85),
-      borderRadius: BorderRadius.all(Radius.circular(15)),
-      initialPadding: EdgeInsets.symmetric(vertical: 3),
-      title: Text(
-        gradesByTeacher.teacher,
-        style: TextStyle(color: Theme.of(context).primaryColorLight),
+    return Theme(
+      data:  Theme.of(context).copyWith(accentColor: Color(0xff495057)),
+      child: ExpansionTileCard(
+        key: cards[gradesByTeachers.indexOf(gradesByTeacher)],
+        baseColor: Theme.of(context).primaryColor,
+        expandedColor: Theme.of(context).primaryColor.withOpacity(0.85),
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+        initialPadding: EdgeInsets.symmetric(vertical: 3),
+        title: Text(
+          gradesByTeacher.teacher,
+          style: TextStyle(color: Theme.of(context).primaryColorLight),
+        ),
+        children: [gradesTableWidget(gradesByTeacher.grades)],
       ),
-      children: [gradesTableWidget(gradesByTeacher.grades)],
     );
   }
 
