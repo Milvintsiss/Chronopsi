@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_boxicons/flutter_boxicons.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -24,17 +22,18 @@ class CalendarPage extends StatefulWidget {
   _CalendarPageState createState() => _CalendarPageState();
 }
 
+enum LoadStatus {
+  LOADING,
+  LOADED,
+  ERROR,
+}
+
 class _CalendarPageState extends State<CalendarPage> {
   Map<DateTime, List<dynamic>> events = {};
 
-  StreamSubscription<List<CalendarDay>> calendarDaysStream;
-  int streamCount = 0;
+  LoadStatus loadStatus = LoadStatus.LOADING;
 
-  bool isLoading = true;
-  bool isLoadingFromBeecome = true;
-
-  /*late*/
-  DateTime /*!*/ _focusedDay;
+  DateTime _focusedDay;
 
   @override
   void initState() {
@@ -46,29 +45,27 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   void dispose() {
-    calendarDaysStream.cancel();
     super.dispose();
   }
 
   void loadCalendarEvents() async {
-    BeecomeAPI.getCalendarFromBeecome(widget.configuration, DateTime.now());
+    List<CalendarDay> calendarDays = await widget
+        .configuration.localMoorDatabase
+        .getAllCalendarDays(widget.configuration.logIn);
+    if (calendarDays == null || calendarDays.isEmpty)
+      calendarDays = await BeecomeAPI.getCalendarFromBeecome(
+          widget.configuration, DateTime.now());
+    if (calendarDays == null || calendarDays.isEmpty) {
+      setState(() => loadStatus = LoadStatus.ERROR);
+      return;
+    }
 
-    calendarDaysStream = widget.configuration.localMoorDatabase
-        .watchAllCalendarDays(widget.configuration.logIn)
-        .listen((calendarDays) {
-      if (calendarDays.length > 0) {
-        events.clear();
-        calendarDays.forEach((calendarDay) {
-          events.addAll({
-            calendarDay.date: [calendarDay.dayState]
-          });
-        });
-        isLoading = false;
-        streamCount++;
-        if (streamCount > 1) isLoadingFromBeecome = false;
-        setState(() {});
-      }
+    calendarDays.forEach((calendarDay) {
+      events.addAll({
+        calendarDay.date: [calendarDay.dayState]
+      });
     });
+    setState(() => loadStatus = LoadStatus.LOADED);
   }
 
   @override
@@ -85,7 +82,7 @@ class _CalendarPageState extends State<CalendarPage> {
       title: Text("Calenpsi"),
       centerTitle: true,
       actions: [
-        isLoadingFromBeecome
+        loadStatus == LoadStatus.LOADING
             ? Padding(
                 padding: const EdgeInsets.only(right: 16.5),
                 child: UnconstrainedBox(
@@ -99,21 +96,43 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                 ),
               )
-            : IconButton(
-                icon: Icon(
-                  Boxicons.bx_calendar_check,
-                ),
-                tooltip: "Le calendrier est à jour!",
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      "Le calendrier est à jour!",
-                      style: TextStyle(color: Colors.green),
+            : loadStatus == LoadStatus.LOADED
+                ? IconButton(
+                    icon: Icon(
+                      Boxicons.bx_calendar_check,
                     ),
-                  ));
-                },
-              ),
+                    tooltip: "L'emploi du temps est à jour!",
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                          "L'emploi du temps est à jour!",
+                          style: TextStyle(color: Colors.green),
+                        ),
+                      ));
+                    },
+                  )
+                : errorIconButton(),
       ],
+    );
+  }
+
+  Widget errorIconButton({double size}) {
+    return IconButton(
+      iconSize: size ?? 24,
+      color: Theme.of(context).primaryColorLight,
+      icon: Icon(
+        Boxicons.bxs_calendar_x,
+      ),
+      tooltip:
+          "Une erreur est survenue lors du chargement de l'emploi du temps",
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            "Une erreur est survenue lors du chargement de l'emploi du temps",
+            style: TextStyle(color: Colors.redAccent[100]),
+          ),
+        ));
+      },
     );
   }
 
@@ -121,7 +140,7 @@ class _CalendarPageState extends State<CalendarPage> {
     return ListView(
       physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       children: [
-        isLoading
+        loadStatus == LoadStatus.LOADING
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -131,7 +150,12 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                 ),
               )
-            : calendarWidget(),
+            : loadStatus == LoadStatus.LOADED
+                ? calendarWidget()
+                : Center(
+                    child: errorIconButton(
+                        size: MediaQuery.of(context).size.width / 4),
+                  ),
         Padding(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
           child: Column(
