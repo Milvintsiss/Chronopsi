@@ -13,18 +13,18 @@ class Database {
       bool fromAPI = false}) async {
     Day day;
     if (fromAPI) {
-      day = await getDayFromBeecome(configuration, dateTime);
+      day = await BeecomeAPI.getDayFromBeecome(configuration, dateTime);
     } else {
       day = await configuration.localMoorDatabase
               .getDay(dateTime, configuration.logIn) ??
-          await getDayFromBeecome(configuration, dateTime);
+          await BeecomeAPI.getDayFromBeecome(configuration, dateTime);
     }
     //if the cache is too old, get new data from API
     if (day.rawLessons.length > 0 &&
         day.rawLessons[0].savingDate != null &&
         day.rawLessons[0].savingDate.difference(DateTime.now()).inDays >=
             configuration.cacheKeepingDuration) {
-      day = await getDayFromBeecome(configuration, dateTime);
+      day = await BeecomeAPI.getDayFromBeecome(configuration, dateTime);
     }
     print("lessons: ${day.rawLessons.length}");
     return day;
@@ -34,7 +34,8 @@ class Database {
       {@required Configuration configuration,
       @required DateTime dateTime,
       bool fromAPI = false}) async* {
-    Future<Day> dayFromBeecome = getDayFromBeecome(configuration, dateTime);
+    Future<Day> dayFromBeecome =
+        BeecomeAPI.getDayFromBeecome(configuration, dateTime);
     Day preDay = await configuration.localMoorDatabase
         .getDay(dateTime, configuration.logIn);
     if (preDay == null ||
@@ -42,7 +43,7 @@ class Database {
             configuration.cacheKeepingDuration)
       yield DayStreamValue(
           streamStatus: DayStreamStatus.TEMP_RESULT,
-          day: await getDayFromAPI(configuration, dateTime));
+          day: await WigorAPI.getDayFromAPI(configuration, dateTime));
     else
       yield DayStreamValue(
           streamStatus: DayStreamStatus.TEMP_RESULT, day: preDay);

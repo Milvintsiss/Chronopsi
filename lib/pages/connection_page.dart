@@ -185,7 +185,7 @@ class _LogInPageState extends State<LogInPage> {
       _formKey.currentState.save();
       String logIn = removeDiacritics("$firstName.$lastName");
       setState(() => isLoading = true);
-      if (await isLogInValid(logIn)) {
+      if (await WigorAPI.isLogInValid(logIn)) {
         if (password != null &&
             password != '' &&
             !await MlbAPI.connectToMyLearningBox(

@@ -51,7 +51,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   void loadCalendarEvents() async {
-    getCalendarFromBeecome(widget.configuration, DateTime.now());
+    BeecomeAPI.getCalendarFromBeecome(widget.configuration, DateTime.now());
 
     calendarDaysStream = widget.configuration.localMoorDatabase
         .watchAllCalendarDays(widget.configuration.logIn)
