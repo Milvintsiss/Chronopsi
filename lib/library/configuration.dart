@@ -31,40 +31,4 @@ class Configuration {
   LocalDatabase localDatabase;
   LocalMoorDatabase localMoorDatabase;
   PackageInfo packageInfo;
-
-  void error(BuildContext context) {
-    AlertDialog dialog = AlertDialog(
-      backgroundColor: Theme.of(context).primaryColor,
-      contentTextStyle: TextStyle(color: Theme.of(context).primaryColorLight),
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20))),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("Chronopsi a rencontré une erreur, \n"
-              "si ce message est trop fréquent "
-              "veuillez vérifier votre connection internet ou vous rendre dans "
-              "les options de Chronopsi et actionner le bouton "
-              "\"Supprimer les données\""),
-        ],
-      ),
-      actions: [
-        TextButton(
-          child: Text("Ne plus me le rappeler"),
-          onPressed: () {
-            sharedPreferences.setBool(doNotShowErrorMsgAgainKey, true);
-            doNotShowErrorMsgAgain = true;
-            Navigator.pop(context);
-          },
-        ),
-        TextButton(
-          child: Text("Ok"),
-          onPressed: () => Navigator.pop(context),
-        )
-      ],
-    );
-
-    if (!doNotShowErrorMsgAgain)
-      showDialog(context: context, builder: (context) => dialog);
-  }
 }

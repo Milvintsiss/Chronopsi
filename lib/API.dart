@@ -135,6 +135,8 @@ Future<List<Day>> getWeekFromAPI(
 Future<Day> getDayFromBeecome(Configuration configuration, DateTime dateTime,
     {String time = "8:00"}) async {
   List<Day> daysOfWeek = await getWeekFromBeecome(configuration, dateTime);
+  if (daysOfWeek == null)
+    return null;
   Day day = daysOfWeek.firstWhere((Day day) => isSameDay(day.date, dateTime));
   return day;
 }
@@ -143,12 +145,15 @@ Future<List<Day>> getWeekFromBeecome(
     Configuration configuration, DateTime dateTime) async {
   String date = convertDateTimeToMMJJAAAAString(dateTime);
 
+  int nbOfIterations = 0;
   var res;
   Document document;
   while (res == null ||
       res.statusCode == 302 ||
       res.isRedirect ||
       saveCalendar(document, configuration).length == 0) {
+    if(nbOfIterations == 3)
+      return null;
     final Uri uri = Uri.https(wigorDomain, wigorPath, {
       'Action': 'posEDTBEECOME',
       'serverid': 'C',
@@ -159,6 +164,7 @@ Future<List<Day>> getWeekFromBeecome(
     res = await http.get(uri);
 
     document = p.parse(res.body);
+    nbOfIterations++;
   }
 
   List<Lesson> lessons = [];

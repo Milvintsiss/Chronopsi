@@ -19,13 +19,14 @@ import 'package:chronopsi/pages/settings_page.dart';
 import '../database.dart';
 import '../library/day.dart';
 import '../local_moor_database.dart';
-import '../myLearningBoxAPI.dart';
 import 'calendar_page.dart';
 import 'connection_page.dart';
 import 'grades_page.dart';
 
 const Color absColor = Color.fromRGBO(139, 0, 0, 1);
 const Color absColorText = Color.fromRGBO(255, 69, 0, 1);
+
+enum LoadStatus { PRELOADED, LOADED, ERROR, LOADING }
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key, this.configuration}) : super(key: key);
@@ -37,13 +38,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool isLoading = true;
-  bool isLoadingForBeecome = true;
+  LoadStatus loadStatus = LoadStatus.LOADING;
   Day day;
 
   Timer errorTimer;
 
-  StreamSubscription<Day> dayStream;
+  StreamSubscription<DayStreamValue> dayStream;
 
   int swipeValue = 1;
 
@@ -65,34 +65,73 @@ class _HomePageState extends State<HomePage> {
   }
 
   void listenDay() async {
-    if (errorTimer != null) errorTimer.cancel();
-    errorTimer = Timer(Duration(seconds: 10), () {
-      if (isLoadingForBeecome) widget.configuration.error(context);
-    });
-
-    bool yieldedNull = false;
     setState(() {
-      isLoading = true;
-      isLoadingForBeecome = true;
+      loadStatus = LoadStatus.LOADING;
     });
     if (dayStream != null) dayStream.cancel();
     dayStream = Database()
         .watchDay(configuration: widget.configuration, dateTime: selectedDay)
-        .listen((_day) {
-      if (_day != null) {
-        day = _day;
-        day.init(widget.configuration.concatenateSimilarLessons);
-        setState(() {
-          if (yieldedNull) {
-            isLoading = false;
-            isLoadingForBeecome = false;
-          } else
-            isLoading = false;
-        });
+        .listen((dayStreamValue) {
+      if (dayStreamValue.streamStatus == DayStreamStatus.ERROR) {
+        setState(() => loadStatus = LoadStatus.ERROR);
+        error();
+        dayStream.cancel();
+        return;
       } else {
-        yieldedNull = true;
+        day = dayStreamValue.day;
+        day.init(widget.configuration.concatenateSimilarLessons);
+        if (dayStreamValue.streamStatus == DayStreamStatus.TEMP_RESULT)
+          setState(() => loadStatus = LoadStatus.PRELOADED);
+        else if (dayStreamValue.streamStatus == DayStreamStatus.RESULT) {
+          setState(() => loadStatus = LoadStatus.LOADED);
+          dayStream.cancel();
+        }
       }
     });
+  }
+
+  void error() {
+    AlertDialog dialog = AlertDialog(
+      backgroundColor: Theme.of(context).primaryColor,
+      contentTextStyle: TextStyle(color: Theme.of(context).primaryColorLight),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20))),
+      title: Text(
+        "Chronopsi a rencontré une erreur",
+        style: TextStyle(color: Theme.of(context).primaryColorDark),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            "Veuillez vérifier votre connection internet et que Beecome"
+            " est actuellement accessible.\n\n"
+            "Si ce message revient trop souvent veuillez vous rendre"
+            " dans les options de Chronopsi et actionner le bouton "
+            "\"Supprimer les données\"",
+            textAlign: TextAlign.justify,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: Text("Ne plus me le rappeler"),
+          onPressed: () {
+            widget.configuration.sharedPreferences
+                .setBool(doNotShowErrorMsgAgainKey, true);
+            widget.configuration.doNotShowErrorMsgAgain = true;
+            Navigator.pop(context);
+          },
+        ),
+        TextButton(
+          child: Text("Ok"),
+          onPressed: () => Navigator.pop(context),
+        )
+      ],
+    );
+
+    if (!widget.configuration.doNotShowErrorMsgAgain)
+      showDialog(context: context, builder: (context) => dialog);
   }
 
   @override
@@ -131,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                     .showGenerateAlarmsDialog(context, widget.configuration),
               )
             : Container(),
-        isLoadingForBeecome
+        loadStatus == LoadStatus.PRELOADED || loadStatus == LoadStatus.LOADING
             ? Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.5),
                 child: UnconstrainedBox(
@@ -145,21 +184,43 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               )
-            : IconButton(
-                icon: Icon(
-                  Boxicons.bx_calendar_check,
-                ),
-                tooltip: "L'emploi du temps est à jour!",
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      "L'emploi du temps est à jour!",
-                      style: TextStyle(color: Colors.green),
+            : loadStatus == LoadStatus.LOADED
+                ? IconButton(
+                    icon: Icon(
+                      Boxicons.bx_calendar_check,
                     ),
-                  ));
-                },
-              ),
+                    tooltip: "L'emploi du temps est à jour!",
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(
+                          "L'emploi du temps est à jour!",
+                          style: TextStyle(color: Colors.green),
+                        ),
+                      ));
+                    },
+                  )
+                : errorIconButton()
       ],
+    );
+  }
+
+  Widget errorIconButton({double size}) {
+    return IconButton(
+      iconSize: size ?? 24,
+      color: Theme.of(context).primaryColorLight,
+      icon: Icon(
+        Boxicons.bxs_calendar_x,
+      ),
+      tooltip:
+      "Une erreur est survenue lors du chargement de l'emploi du temps",
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            "Une erreur est survenue lors du chargement de l'emploi du temps",
+            style: TextStyle(color: Colors.redAccent[100]),
+          ),
+        ));
+      },
     );
   }
 
@@ -201,12 +262,10 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             kDebugMode
-                ? showListTile("Test", Icons.sort, onTap: () {
-                    getGradesFromMyLearningBox(widget.configuration);
-                  })
+                ? showListTile("Test", Icons.sort, onTap: () {})
                 : Container(),
             kDebugMode
-                ? showListTile("Test2", Icons.sort, onTap: () {
+                ? showListTile("Delete all days", Icons.sort, onTap: () {
                     widget.configuration.localMoorDatabase.deleteAllDays();
                   })
                 : Container(),
@@ -359,7 +418,7 @@ class _HomePageState extends State<HomePage> {
                 child: Stack(
                   children: [
                     showHours(),
-                    isLoading
+                    loadStatus == LoadStatus.LOADING
                         ? Align(
                             alignment: Alignment.topCenter,
                             child: CircularProgressIndicator(
@@ -367,7 +426,9 @@ class _HomePageState extends State<HomePage> {
                                   Theme.of(context).primaryColorLight),
                             ),
                           )
-                        : showLessons(),
+                        : loadStatus == LoadStatus.ERROR
+                            ? SizedBox.shrink()
+                            : showLessons(),
                   ],
                 ),
               ),
@@ -375,6 +436,7 @@ class _HomePageState extends State<HomePage> {
           ),
           showOpacityLayerIfNoLesson(),
           showNoLessonAvailableTextIfNoLesson(),
+          showErrorIcon(),
         ],
       ),
     );
@@ -931,7 +993,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget showGoToNextLessonButton() {
-    if (!isLoading && !isLoadingForBeecome && day.isEmpty)
+    if (loadStatus == LoadStatus.LOADED && day.isEmpty)
       return Positioned(
         bottom: 15,
         left: 20,
@@ -949,7 +1011,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget showOpacityLayerIfNoLesson() {
-    if (!isLoading && day.isEmpty)
+    if (loadStatus != LoadStatus.LOADING && day.isEmpty)
       return Opacity(
         opacity: 0.7,
         child: Container(
@@ -957,11 +1019,14 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     else
-      return Container();
+      return SizedBox.shrink();
   }
 
   Widget showNoLessonAvailableTextIfNoLesson() {
-    if (!isLoading && day.isEmpty)
+    if (day != null &&
+        day.isEmpty &&
+        loadStatus != LoadStatus.LOADING &&
+        loadStatus != LoadStatus.ERROR)
       return Center(
         child: Text(
           "Pas de cours ce jour-ci.",
@@ -969,7 +1034,16 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     else
-      return Container();
+      return SizedBox.shrink();
+  }
+
+  Widget showErrorIcon() {
+    if (loadStatus == LoadStatus.ERROR)
+      return Center(
+        child: errorIconButton(size: MediaQuery.of(context).size.width / 3)
+      );
+    else
+      return SizedBox.shrink();
   }
 
   void goToNextLesson() async {
@@ -982,7 +1056,7 @@ class _HomePageState extends State<HomePage> {
 
     if (calendarDays[indexOfCurrentDay + 1].dayState != DayState.holiday) {
       setState(() {
-        isLoading = true;
+        loadStatus = LoadStatus.LOADING;
         selectedDay = calendarDays[indexOfCurrentDay + 1].date;
       });
     } else {
@@ -992,7 +1066,7 @@ class _HomePageState extends State<HomePage> {
           i++) {
         await Future.delayed(Duration(milliseconds: 100));
         setState(() {
-          isLoading = true;
+          loadStatus = LoadStatus.LOADING;
           selectedDay = calendarDays[i + 1].date;
         });
       }
