@@ -188,7 +188,7 @@ class _LogInPageState extends State<LogInPage> {
       if (await isLogInValid(logIn)) {
         if (password != null &&
             password != '' &&
-            !await connectToMyLearningBox(
+            !await MlbAPI.connectToMyLearningBox(
                 widget.configuration, logIn, password)) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(

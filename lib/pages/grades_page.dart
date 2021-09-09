@@ -37,7 +37,7 @@ class _GradesPageState extends State<GradesPage> {
     setState(() {
       isLoading = true;
     });
-    grades = await getGradesFromMyLearningBox(widget.configuration);
+    grades = await MlbAPI.getGradesFromMyLearningBox(widget.configuration);
     grades.forEach((grade) {
       grade.init();
     });
