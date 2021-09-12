@@ -212,7 +212,7 @@ class _HomePageState extends State<HomePage> {
         Boxicons.bxs_calendar_x,
       ),
       tooltip:
-      "Une erreur est survenue lors du chargement de l'emploi du temps",
+          "Une erreur est survenue lors du chargement de l'emploi du temps",
       onPressed: () {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
@@ -506,28 +506,33 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Flexible(
                               flex: 1,
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(100)),
-                                    color: Theme.of(context).primaryColorLight,
-                                  ),
-                                  padding: EdgeInsets.all(6),
-                                  child: Text(
-                                    day.lessons[i].subject,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        color:
-                                            Theme.of(context).primaryColorDark,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14),
-                                  )),
+                              child: Scalable(
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(100)),
+                                      color:
+                                          Theme.of(context).primaryColorLight,
+                                    ),
+                                    padding: EdgeInsets.all(6),
+                                    child: Text(
+                                      replaceWithDashIfEmptyOrNull(
+                                          day.lessons[i].subject),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryColorDark,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12),
+                                    )),
+                              ),
                             ),
                             Flexible(
                               flex: 0,
                               child: Text(
-                                day.lessons[i].room,
+                                replaceWithDashIfEmptyOrNull(
+                                    day.lessons[i].room),
                                 maxLines: 1,
                                 style: TextStyle(
                                     color: Theme.of(context).primaryColorLight,
@@ -542,12 +547,15 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Text(
-                                    day.lessons[i].professor,
-                                    style: TextStyle(
-                                        color:
-                                            Theme.of(context).primaryColorLight,
-                                        fontSize: 11),
+                                  Scalable(
+                                    child: Text(
+                                      replaceWithDashIfEmptyOrNull(
+                                          day.lessons[i].professor),
+                                      style: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryColorLight,
+                                          fontSize: 11),
+                                    ),
                                   ),
                                   Text(
                                     "${day.lessons[i].startTime} -> ${day.lessons[i].endTime}",
@@ -691,7 +699,8 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     Flexible(
                                       flex: 1,
-                                      child: Container(
+                                      child: Scalable(
+                                        child: Container(
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(100)),
@@ -700,7 +709,8 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                           padding: EdgeInsets.all(6),
                                           child: Text(
-                                            lesson.subject,
+                                            replaceWithDashIfEmptyOrNull(
+                                                lesson.subject),
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
@@ -708,12 +718,15 @@ class _HomePageState extends State<HomePage> {
                                                     .primaryColorDark,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14),
-                                          )),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                     Flexible(
                                       flex: 0,
                                       child: Text(
-                                        lesson.room,
+                                        replaceWithDashIfEmptyOrNull(
+                                            lesson.room),
                                         maxLines: 1,
                                         style: TextStyle(
                                             color: Theme.of(context)
@@ -728,12 +741,15 @@ class _HomePageState extends State<HomePage> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    Text(
-                                      lesson.professor,
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .primaryColorLight,
-                                          fontSize: 11),
+                                    Scalable(
+                                      child: Text(
+                                        replaceWithDashIfEmptyOrNull(
+                                            lesson.professor),
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .primaryColorLight,
+                                            fontSize: 11),
+                                      ),
                                     ),
                                     Text(
                                       "${lesson.startTime} -> ${lesson.endTime}",
@@ -1040,8 +1056,7 @@ class _HomePageState extends State<HomePage> {
   Widget showErrorIcon() {
     if (loadStatus == LoadStatus.ERROR)
       return Center(
-        child: errorIconButton(size: MediaQuery.of(context).size.width / 3)
-      );
+          child: errorIconButton(size: MediaQuery.of(context).size.width / 3));
     else
       return SizedBox.shrink();
   }
@@ -1073,6 +1088,27 @@ class _HomePageState extends State<HomePage> {
     }
 
     listenDay();
+  }
+}
+
+String replaceWithDashIfEmptyOrNull(String string) =>
+    string == "" || string == null ? "-" : string;
+
+class Scalable extends StatelessWidget {
+  Scalable({@required this.child, this.alignment});
+
+  final Widget child;
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment ?? Alignment.center,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: child,
+      ),
+    );
   }
 }
 
