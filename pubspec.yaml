@@ -31,10 +31,10 @@ dependencies:
   moor: ^4.3.2
   sqlite3_flutter_libs: ^0.4.0+1
   path_provider: ^2.0.1
-  sqlite3_library_windows: ^2.0.0
+  sqlite3_library_windows: ^2.0.1
     #git: https://github.com/Milvintsiss/sqlite3_library_windows
     #path: ../sqlite3_library_windows
-  sqlite3_library_linux: ^2.0.0
+  sqlite3_library_linux: ^2.1.0+1
     #git: https://github.com/Milvintsiss/sqlite3_library_linux
     #path: ../sqlite3_library_linux
 
