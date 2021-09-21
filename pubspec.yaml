@@ -4,7 +4,7 @@ autor: Milvintsiss <milvintsiss.com>
 
 publish_to: 'none'
 
-version: 1.4.2+17
+version: 1.4.3+18
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
